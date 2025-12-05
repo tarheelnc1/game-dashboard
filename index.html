@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .dashboard-header h1 {
+            color: #667eea;
+        }
+
+        .timer-display {
+            background: #f0f0f0;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .timer-display .timer-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .timer-display .timer-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #ff3838;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .game-card:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .game-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .game-card.completed {
+            border: 3px solid #28a745;
+        }
+
+        .game-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .game-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .game-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .game-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-badge.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.unlocked {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .play-btn:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        .play-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Visibility Control */
+        #loginScreen.hidden,
+        #dashboardScreen.hidden,
+        #gameScreen.hidden {
+            display: none !important;
+        }
+
+        #loginScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #dashboardScreen {
+            display: block;
+        }
+
+        #gameScreen {
+            display: block;
+        }
+
+        /* Game View */
+        .game-view {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #5568d3;
+        }
+
+        .game-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+
+        .complete-game-btn {
+            padding: 15px 40px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        .complete-game-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h1>🎮 Game Dashboard</h1>
+            <p>Enter your name to continue</p>
+            <div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your name" onkeypress="if(event.key==='Enter') handleLogin()">
+                </div>
+                <button type="button" class="btn" onclick="handleLogin()">Start Playing</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="dashboard hidden">
+        <div class="dashboard-header">
+            <div style="flex: 1;">
+                <h1>Welcome, <span id="displayName"></span>!</h1>
+                <div class="timer-display">
+                    <div class="timer-label">Total Time</div>
+                    <div class="timer-value" id="globalTimer">00:00:00</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">
+                        <span id="progressText">0% Complete</span>
+                    </div>
+                </div>
+            </div>
+            <div class="user-info">
+                <button class="logout-btn" onclick="resetProgress()" style="background: #ffa500; margin-right: 10px;">
+                    Reset Progress
+                </button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="games-grid" id="gamesGrid"></div>
+    </div>
+
+    <!-- Game View Screen -->
+    <div id="gameScreen" class="game-view hidden">
+        <div class="game-header">
+            <h2 id="currentGameTitle"></h2>
+            <button class="back-btn" onclick="backToDashboard()">← Back to Dashboard</button>
+        </div>
+        <div class="game-content" id="gameContent">
+            <!-- Game content will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Game Configuration
+        const GAMES = [
+            {
+                id: 'game1',
+                title: 'Prize Wheel',
+                description: 'Spin the wheel and win a prize!',
+                order: 1,
+                requiredGame: null
+            },
+            {
+                id: 'game2',
+                title: 'Memory Match',
+                description: 'Match all the pairs to complete the game',
+                order: 2,
+                requiredGame: 'game1'
+            },
+            {
+                id: 'game3',
+                title: 'Quick Quiz',
+                description: 'Answer 5 trivia questions correctly',
+                order: 3,
+                requiredGame: 'game2'
+            },
+            {
+                id: 'game4',
+                title: 'Number Guess',
+                description: 'Guess the secret number between 1-100',
+                order: 4,
+                requiredGame: 'game3'
+            },
+            {
+                id: 'game5',
+                title: 'Color Match',
+                description: 'Match colors as fast as you can',
+                order: 5,
+                requiredGame: 'game4'
+            }
+        ];
+
+        // State Management
+        let currentUser = null;
+        let currentGameId = null;
+        let globalTimer = null;
+        let globalStartTime = null;
+        let totalGameTime = 0;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('App loaded!');
+            checkLoginStatus();
+        });
+
+        // Handle login button click
+        function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            console.log('Login attempt:', username);
+            if (username) {
+                login(username);
+            } else {
+                alert('Please enter a username');
+            }
+        }
+
+        // Check if user is already logged in
+        function checkLoginStatus() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                showDashboard();
+            }
+        }
+
+        // Login function
+        function login(username) {
+            console.log('Logging in:', username);
+            
+            // Check if user exists
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (!users[username]) {
+                // Create new user
+                users[username] = {
+                    username: username,
+                    gamesCompleted: [],
+                    scores: {},
+                    createdAt: new Date().toISOString()
+                };
+                localStorage.setItem('users', JSON.stringify(users));
+                console.log('New user created');
+            }
+            
+            currentUser = users[username];
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            console.log('Current user set:', currentUser);
+            showDashboard();
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showLogin();
+        }
+
+        // Show login screen
+        function showLogin() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            console.log('Showing dashboard');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            
+            // Update display name
+            document.getElementById('displayName').innerText = currentUser.username;
+            
+            // Check if timer should be running
+            if (currentUser.gamesCompleted.length > 0 && currentUser.gamesCompleted.length < GAMES.length) {
+                // Games in progress - resume timer
+                if (currentUser.timerStartTime) {
+                    globalStartTime = currentUser.timerStartTime;
+                    startGlobalTimer();
+                }
+            } else if (currentUser.gamesCompleted.length === 0) {
+                // No games started yet - reset timer
+                globalStartTime = null;
+                totalGameTime = 0;
+                updateTimerDisplay(0);
+            } else {
+                // All games complete - show final time
+                if (currentUser.totalTime) {
+                    updateTimerDisplay(currentUser.totalTime);
+                }
+            }
+            
+            // Update progress
+            updateProgress();
+            
+            // Render games
+            renderGames();
+        }
+
+        function startGlobalTimer() {
+            if (globalTimer) return; // Already running
+            
+            if (!globalStartTime) {
+                globalStartTime = Date.now();
+                // Save start time to user
+                currentUser.timerStartTime = globalStartTime;
+                saveUserData();
+            }
+            
+            globalTimer = setInterval(() => {
+                const elapsed = Date.now() - globalStartTime;
+                updateTimerDisplay(elapsed);
+            }, 100);
+        }
+
+        function stopGlobalTimer() {
+            if (globalTimer) {
+                clearInterval(globalTimer);
+                globalTimer = null;
+            }
+            totalGameTime = Date.now() - globalStartTime;
+            return totalGameTime;
+        }
+
+        function updateTimerDisplay(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('globalTimer').textContent = display;
+        }
+
+        function saveUserData() {
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            users[currentUser.username] = currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const completedCount = currentUser.gamesCompleted.length;
+            const totalGames = GAMES.length;
+            const percentage = (completedCount / totalGames) * 100;
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').innerText = 
+                `${completedCount}/${totalGames} Games (${Math.round(percentage)}%)`;
+        }
+
+        // Check if game is unlocked
+        function isGameUnlocked(game) {
+            if (!game.requiredGame) return true;
+            return currentUser.gamesCompleted.includes(game.requiredGame);
+        }
+
+        // Check if game is completed
+        function isGameCompleted(gameId) {
+            return currentUser.gamesCompleted.includes(gameId);
+        }
+
+        // Render games grid
+        function renderGames() {
+            console.log('Rendering games');
+            const gamesGrid = document.getElementById('gamesGrid');
+            gamesGrid.innerHTML = '';
+            
+            GAMES.forEach(game => {
+                const unlocked = isGameUnlocked(game);
+                const completed = isGameCompleted(game.id);
+                
+                const card = document.createElement('div');
+                card.className = `game-card ${!unlocked ? 'locked' : ''} ${completed ? 'completed' : ''}`;
+                
+                let statusBadge = '';
+                if (completed) {
+                    statusBadge = '<span class="status-badge completed">✓ Completed</span>';
+                } else if (unlocked) {
+                    statusBadge = '<span class="status-badge unlocked">🔓 Unlocked</span>';
+                } else {
+                    statusBadge = '<span class="status-badge locked">🔒 Locked</span>';
+                }
+                
+                card.innerHTML = `
+                    <div class="game-number">${game.order}</div>
+                    <h3>${game.title}</h3>
+                    <p>${game.description}</p>
+                    <div class="game-status">
+                        ${statusBadge}
+                    </div>
+                    <button class="play-btn" ${!unlocked ? 'disabled' : ''} onclick="playGame('${game.id}')">
+                        ${completed ? 'Play Again' : 'Play Now'}
+                    </button>
+                `;
+                
+                gamesGrid.appendChild(card);
+            });
+        }
+
+        // Play game
+        function playGame(gameId) {
+            const game = GAMES.find(g => g.id === gameId);
+            if (!game || !isGameUnlocked(game)) return;
+            
+            // Start timer when playing first game
+            if (currentUser.gamesCompleted.length === 0 && !globalStartTime) {
+                startGlobalTimer();
+            }
+            
+            currentGameId = gameId;
+            showGameScreen(game);
+        }
+
+        // Show game screen
+        function showGameScreen(game) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            document.getElementById('currentGameTitle').innerText = game.title;
+            
+            // Load game content (always fresh load)
+            loadGameContent(game);
+        }
+
+        // Load game content
+        function loadGameContent(game) {
+            const gameContent = document.getElementById('gameContent');
+            
+            // Game 1: Prize Wheel
+            if (game.id === 'game1') {
+                const prizes = ['Prize 1', 'Prize 2', 'Prize 3', 'Prize 4', 'Prize 5', 'Prize 6', 'Prize 7', 'Prize 8'];
+                
+                gameContent.innerHTML = `
+                    <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                        <h2>🎡 ${game.title}</h2>
+                        <p style="font-size: 1.1em; margin: 15px 0; color: #666;">
+                            Guess which prize the wheel will land on!
+                        </p>
+                        
+                        ${isGameCompleted(game.id) ? `
+                            <p style="color: #28a745; font-weight: bold; font-size: 1em; margin: 10px 0;">
+                                ✓ Already completed - playing again for fun!
+                            </p>
+                        ` : ''}
+                        
+                        <div id="wheelGuessSection" style="margin: 30px 0;">
+                            <p style="font-size: 1.2em; margin-bottom: 20px; font-weight: bold;">Make your prediction:</p>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 500px; margin: 0 auto 30px;">
+                                ${prizes.map((prize, i) => `
+                                    <button onclick="selectPrize(${i + 1})" 
+                                            id="prizeBtn${i + 1}"
+                                            style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                                   color: white; border: none; border-radius: 10px; font-size: 1.1em; 
+                                                   font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                                        ${prize}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <p id="selectedPrize" style="font-size: 1.1em; color: #667eea; font-weight: bold; min-height: 30px;"></p>
+                            <button id="spinWheelBtn" onclick="spinPrizeWheel()" disabled
+                                    style="padding: 20px 50px; background: #ccc; color: white; border: none; 
+                                           border-radius: 10px; font-size: 1.3em; font-weight: bold; cursor: not-allowed; 
+                                           margin-top: 20px;">
+                                🎡 SPIN THE WHEEL
+                            </button>
+                        </div>
+                        
+                        <div id="wheelSpinning" style="display: none; margin: 40px 0;">
+                            <div style="font-size: 6em; animation: spin 1s linear infinite;">🎡</div>
+                            <p style="font-size: 1.3em; margin-top: 20px; color: #667eea; font-weight: bold;">Spinning...</p>
+                        </div>
+                        
+                        <div id="wheelResult" style="display: none; margin: 40px 0;">
+                            <div style="background: #f0f0f0; padding: 40px; border-radius: 10px;">
+                                <p style="font-size: 1.2em; margin-bottom: 15px;">The wheel landed on:</p>
+                                <p id="landedPrize" style="font-size: 2.5em; color: #667eea; font-weight: bold; margin: 20px 0;"></p>
+                                <p id="guessOutcome" style="font-size: 1.5em; font-weight: bold; margin: 20px 0;"></p>
+                                <button onclick="resetWheelGame()" 
+                                        style="padding: 15px 30px; background: #667eea; color: white; border: none; 
+                                               border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin: 10px;">
+                                    Try Again
+                                </button>
+                                <div id="wheelComplete" style="display: none; margin-top: 20px;">
+                                    <button class="complete-game-btn" onclick="completeWheelGame()">
+                                        ${isGameCompleted(game.id) ? '← Back to Dashboard' : '✓ Complete & Continue'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <style>
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                `;
+                
+                // Initialize wheel game
+                window.wheelGame = {
+                    selectedPrize: null,
+                    attempts: 0,
+                    won: false
+                };
+                return;
+            }
+            
+            // Game 2: Memory Match
+            if (game.id === 'game2') {
+                const emojis = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎺', '🎸'];
+                const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+                
+                gameContent.innerHTML = `
+                    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                        <h2>🃏 ${game.title}</h2>
+                        <p style="font-size: 1.1em; margin: 15px 0; color: #666;">
+                            Find all matching pairs!
+                        </p>
+                        
+                        ${isGameCompleted(game.id) ? `
+                            <p style="color: #28a745; font-weight: bold; font-size: 1em; margin: 10px 0;">
+                                ✓ Already completed - playing again for fun!
+                            </p>
+                        ` : ''}
+                        
+                        <div style="margin: 20px 0;">
+                            <span style="font-size: 1.1em; font-weight: bold;">Moves: </span>
+                            <span id="moveCount" style="font-size: 1.1em; color: #667eea;">0</span>
+                            <span style="margin: 0 20px;">|</span>
+                            <span style="font-size: 1.1em; font-weight: bold;">Pairs Found: </span>
+                            <span id="pairsFound" style="font-size: 1.1em; color: #28a745;">0/8</span>
+                        </div>
+                        
+                        <div id="memoryGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 400px; margin: 30px auto;">
+                            ${cards.map((emoji, i) => `
+                                <div onclick="flipCard(${i})" 
+                                     id="card${i}"
+                                     class="memory-card"
+                                     data-emoji="${emoji}"
+                                     style="aspect-ratio: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                            border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+                                            font-size: 2em; cursor: pointer; transition: all 0.3s;">
+                                    <span class="card-back">❓</span>
+                                    <span class="card-front" style="display: none;">${emoji}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div id="memoryComplete" style="display: none; margin-top: 30px;">
+                            <p style="color: #28a745; font-weight: bold; font-size: 1.3em; margin: 20px 0;">
+                                🎉 Perfect! All pairs matched in <span id="finalMoves"></span> moves!
+                            </p>
+                            <button class="complete-game-btn" onclick="completeMemoryGame()">
+                                ${isGameCompleted(game.id) ? '← Back to Dashboard' : '✓ Complete & Continue'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize memory game state
+                window.memoryGame = {
+                    flipped: [],
+                    matched: [],
+                    moves: 0,
+                    canFlip: true
+                };
+                return;
+            }
+            
+            // Game 3: Quick Quiz
+            if (game.id === 'game3') {
+                const questions = [
+                    { q: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+                    { q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1 },
+                    { q: "How many continents are there?", options: ["5", "6", "7", "8"], correct: 2 },
+                    { q: "What is 15 x 8?", options: ["120", "125", "115", "130"], correct: 0 },
+                    { q: "Who painted the Mona Lisa?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correct: 1 }
+                ];
+                
+                gameContent.innerHTML = `
+                    <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+                        <h2>❓ ${game.title}</h2>
+                        <p style="font-size: 1.1em; margin: 15px 0; color: #666;">
+                            Answer all 5 questions correctly!
+                        </p>
+                        
+                        ${isGameCompleted(game.id) ? `
+                            <p style="color: #28a745; font-weight: bold; font-size: 1em; margin: 10px 0;">
+                                ✓ Already completed - playing again for fun!
+                            </p>
+                        ` : ''}
+                        
+                        <div style="margin: 20px 0;">
+                            <span style="font-size: 1.1em; font-weight: bold;">Question: </span>
+                            <span id="quizCurrent" style="font-size: 1.1em; color: #667eea;">1</span>
+                            <span> / 5</span>
+                            <span style="margin: 0 20px;">|</span>
+                            <span style="font-size: 1.1em; font-weight: bold;">Score: </span>
+                            <span id="quizScore" style="font-size: 1.1em; color: #28a745;">0</span>
+                        </div>
+                        
+                        <div id="quizContent" style="margin: 40px 0;">
+                            <div style="background: #f0f0f0; padding: 40px; border-radius: 10px;">
+                                <p id="quizQuestion" style="font-size: 1.3em; margin-bottom: 30px; font-weight: bold;"></p>
+                                <div id="quizOptions" style="display: grid; gap: 15px;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="quizComplete" style="display: none;">
+                            <p id="quizFinalScore" style="font-weight: bold; font-size: 1.3em; margin: 20px 0;"></p>
+                            <button class="complete-game-btn" onclick="completeQuizGame()">
+                                ${isGameCompleted(game.id) ? '← Back to Dashboard' : '✓ Complete & Continue'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize quiz
+                window.quizGame = {
+                    questions: questions,
+                    current: 0,
+                    score: 0
+                };
+                showQuizQuestion();
+                return;
+            }
+            
+            // Game 4: Number Guess
+            if (game.id === 'game4') {
+                gameContent.innerHTML = `
+                    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                        <h2>🎲 ${game.title}</h2>
+                        <p style="font-size: 1.1em; margin: 15px 0; color: #666;">
+                            Guess the number between 1 and 100!
+                        </p>
+                        
+                        ${isGameCompleted(game.id) ? `
+                            <p style="color: #28a745; font-weight: bold; font-size: 1em; margin: 10px 0;">
+                                ✓ Already completed - playing again for fun!
+                            </p>
+                        ` : ''}
+                        
+                        <div style="margin: 20px 0;">
+                            <span style="font-size: 1.1em; font-weight: bold;">Attempts: </span>
+                            <span id="guessAttempts" style="font-size: 1.1em; color: #667eea;">0</span>
+                            <span style="margin: 0 20px;">|</span>
+                            <span style="font-size: 1.1em; font-weight: bold;">Range: </span>
+                            <span id="guessRange" style="font-size: 1.1em; color: #666;">1-100</span>
+                        </div>
+                        
+                        <div id="numberGuessContent" style="margin: 40px 0;">
+                            <div style="background: #f0f0f0; padding: 40px; border-radius: 10px;">
+                                <p style="font-size: 1.2em; margin-bottom: 20px;">I'm thinking of a number...</p>
+                                <input type="number" id="numberGuessInput" min="1" max="100" 
+                                       style="width: 200px; padding: 15px; font-size: 1.2em; text-align: center; border: 2px solid #667eea; border-radius: 8px;"
+                                       placeholder="1-100"
+                                       onkeypress="if(event.key==='Enter') checkNumberGuess()">
+                                <br><br>
+                                <button onclick="checkNumberGuess()" 
+                                        style="padding: 15px 40px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer;">
+                                    Make Guess
+                                </button>
+                                <p id="numberGuessResult" style="margin-top: 20px; font-size: 1.1em; font-weight: bold; min-height: 30px;"></p>
+                                <div id="guessList" style="margin-top: 20px; font-size: 0.9em; color: #666;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="numberGuessComplete" style="display: none;">
+                            <p style="color: #28a745; font-weight: bold; font-size: 1.3em; margin: 20px 0;">
+                                🎉 Correct! You guessed it in <span id="finalAttempts"></span> attempts!
+                            </p>
+                            <button class="complete-game-btn" onclick="completeNumberGame()">
+                                ${isGameCompleted(game.id) ? '← Back to Dashboard' : '✓ Complete & Continue'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize number guess
+                window.numberGuess = {
+                    secret: Math.floor(Math.random() * 100) + 1,
+                    attempts: 0,
+                    guesses: [],
+                    min: 1,
+                    max: 100
+                };
+                return;
+            }
+            
+            // Game 5: Color Match
+            if (game.id === 'game5') {
+                gameContent.innerHTML = `
+                    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                        <h2>🎨 ${game.title}</h2>
+                        <p style="font-size: 1.1em; margin: 15px 0; color: #666;">
+                            Match 10 colors as fast as you can!
+                        </p>
+                        
+                        ${isGameCompleted(game.id) ? `
+                            <p style="color: #28a745; font-weight: bold; font-size: 1em; margin: 10px 0;">
+                                ✓ Already completed - playing again for fun!
+                            </p>
+                        ` : ''}
+                        
+                        <div id="colorMatchStart" style="margin: 40px 0;">
+                            <p style="font-size: 1.1em; margin-bottom: 20px;">Ready to test your color matching skills?</p>
+                            <button onclick="startColorMatch()" 
+                                    style="padding: 20px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                                Start Game
+                            </button>
+                        </div>
+                        
+                        <div id="colorMatchGame" style="display: none;">
+                            <div style="margin: 20px 0;">
+                                <span style="font-size: 1.1em; font-weight: bold;">Round: </span>
+                                <span id="colorRound" style="font-size: 1.1em; color: #667eea;">1</span>
+                                <span> / 10</span>
+                                <span style="margin: 0 20px;">|</span>
+                                <span style="font-size: 1.1em; font-weight: bold;">Time: </span>
+                                <span id="colorTime" style="font-size: 1.1em; color: #ff4757;">0.0s</span>
+                            </div>
+                            
+                            <div style="margin: 40px 0;">
+                                <p style="font-size: 1.2em; margin-bottom: 20px;">Does the TEXT match the COLOR?</p>
+                                <div id="colorDisplay" style="padding: 40px; background: #f0f0f0; border-radius: 10px; margin: 20px 0;">
+                                    <p id="colorText" style="font-size: 3em; font-weight: bold; margin: 0;"></p>
+                                </div>
+                                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                                    <button onclick="answerColorMatch(true)" 
+                                            style="padding: 20px 50px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                                        ✓ MATCH
+                                    </button>
+                                    <button onclick="answerColorMatch(false)" 
+                                            style="padding: 20px 50px; background: #ff4757; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                                        ✗ NO MATCH
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="colorMatchComplete" style="display: none;">
+                            <p style="color: #28a745; font-weight: bold; font-size: 1.3em; margin: 20px 0;">
+                                🎉 Complete! Time: <span id="finalTime"></span>
+                            </p>
+                            <button class="complete-game-btn" onclick="completeColorGame()">
+                                ${isGameCompleted(game.id) ? '← Back to Dashboard' : '✓ Complete & Continue'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Placeholder for other games
+            gameContent.innerHTML = `
+                <div style="text-align: center;">
+                    <h2>${game.title}</h2>
+                    <p style="font-size: 1.2em; margin: 20px 0; color: #666;">
+                        ${game.description}
+                    </p>
+                    
+                    <div style="background: #f0f0f0; padding: 40px; border-radius: 10px; margin: 30px 0;">
+                        <p style="font-size: 1.1em; margin-bottom: 20px;">
+                            🎮 Game content will be loaded here
+                        </p>
+                        <p style="color: #666;">
+                            This is a placeholder. You'll integrate actual game components here.
+                        </p>
+                    </div>
+                    
+                    ${!isGameCompleted(game.id) ? `
+                        <button class="complete-game-btn" onclick="completeGame()">
+                            ✓ Complete This Game
+                        </button>
+                    ` : `
+                        <p style="color: #28a745; font-weight: bold; font-size: 1.2em;">
+                            ✓ You've already completed this game!
+                        </p>
+                    `}
+                </div>
+            `;
+        }
+
+        // Complete game
+        function completeGame() {
+            if (!currentGameId) return;
+            
+            // Check if already completed
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            
+            if (!alreadyCompleted) {
+                // Mark game as completed
+                currentUser.gamesCompleted.push(currentGameId);
+                
+                // Update localStorage
+                let users = JSON.parse(localStorage.getItem('users') || '{}');
+                users[currentUser.username] = currentUser;
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Find next game
+                const game = GAMES.find(g => g.id === currentGameId);
+                const nextGame = GAMES.find(g => g.requiredGame === currentGameId);
+                
+                // Check if all games complete
+                if (currentUser.gamesCompleted.length === GAMES.length) {
+                    // Stop timer and save final time
+                    const finalTime = stopGlobalTimer();
+                    currentUser.totalTime = finalTime;
+                    currentUser.timerStartTime = null;
+                    saveUserData();
+                    
+                    alert(`🏆 CONGRATULATIONS! 🏆\n\nYou completed all games!\n\nTotal Time: ${formatTime(finalTime)}`);
+                    backToDashboard();
+                } else if (nextGame) {
+                    // Auto-advance to next game
+                    setTimeout(() => {
+                        alert(`✓ ${game.title} Complete!\n\n🔓 Starting ${nextGame.title}...`);
+                        playGame(nextGame.id);
+                    }, 500);
+                }
+            } else {
+                // Already completed, just go back
+                backToDashboard();
+            }
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        // Back to dashboard
+        function backToDashboard() {
+            currentGameId = null;
+            showDashboard();
+        }
+
+        // ============ PRIZE WHEEL GAME FUNCTIONS ============
+        function selectPrize(prizeNum) {
+            // Reset all buttons
+            for (let i = 1; i <= 8; i++) {
+                const btn = document.getElementById(`prizeBtn${i}`);
+                btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                btn.style.transform = 'scale(1)';
+            }
+            
+            // Highlight selected
+            const selectedBtn = document.getElementById(`prizeBtn${prizeNum}`);
+            selectedBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+            selectedBtn.style.transform = 'scale(1.05)';
+            
+            window.wheelGame.selectedPrize = prizeNum;
+            document.getElementById('selectedPrize').textContent = `You selected: Prize ${prizeNum}`;
+            
+            // Enable spin button
+            const spinBtn = document.getElementById('spinWheelBtn');
+            spinBtn.disabled = false;
+            spinBtn.style.background = 'linear-gradient(135deg, #ff4757 0%, #ff6b81 100%)';
+            spinBtn.style.cursor = 'pointer';
+        }
+        
+        function spinPrizeWheel() {
+            if (!window.wheelGame.selectedPrize) return;
+            
+            window.wheelGame.attempts++;
+            
+            // Hide selection
+            document.getElementById('wheelGuessSection').style.display = 'none';
+            document.getElementById('wheelSpinning').style.display = 'block';
+            
+            // Spin for 3 seconds
+            setTimeout(() => {
+                const landedOn = Math.floor(Math.random() * 8) + 1;
+                showWheelResult(landedOn);
+            }, 3000);
+        }
+        
+        function showWheelResult(landedOn) {
+            document.getElementById('wheelSpinning').style.display = 'none';
+            document.getElementById('wheelResult').style.display = 'block';
+            document.getElementById('landedPrize').textContent = `Prize ${landedOn}`;
+            
+            const outcome = document.getElementById('guessOutcome');
+            if (landedOn === window.wheelGame.selectedPrize) {
+                outcome.textContent = `🎉 YOU WIN! Correct guess!`;
+                outcome.style.color = '#28a745';
+                window.wheelGame.won = true;
+                document.getElementById('wheelComplete').style.display = 'block';
+            } else {
+                outcome.textContent = `❌ Not quite! You guessed Prize ${window.wheelGame.selectedPrize}`;
+                outcome.style.color = '#ff4757';
+            }
+        }
+        
+        function resetWheelGame() {
+            document.getElementById('wheelResult').style.display = 'none';
+            document.getElementById('wheelGuessSection').style.display = 'block';
+            
+            // Reset selection
+            window.wheelGame.selectedPrize = null;
+            document.getElementById('selectedPrize').textContent = '';
+            
+            // Reset all buttons
+            for (let i = 1; i <= 8; i++) {
+                const btn = document.getElementById(`prizeBtn${i}`);
+                btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                btn.style.transform = 'scale(1)';
+            }
+            
+            // Disable spin button
+            const spinBtn = document.getElementById('spinWheelBtn');
+            spinBtn.disabled = true;
+            spinBtn.style.background = '#ccc';
+            spinBtn.style.cursor = 'not-allowed';
+        }
+        
+        function completeWheelGame() {
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            if (!alreadyCompleted && window.wheelGame.won) {
+                completeGame();
+            } else if (!alreadyCompleted && !window.wheelGame.won) {
+                alert('You need to guess correctly to complete this game!');
+            } else {
+                backToDashboard();
+            }
+        }
+        
+        // ============ MEMORY MATCH GAME FUNCTIONS ============
+        function flipCard(index) {
+            if (!window.memoryGame.canFlip) return;
+            const card = document.getElementById(`card${index}`);
+            if (window.memoryGame.matched.includes(index) || window.memoryGame.flipped.includes(index)) return;
+            
+            // Flip card
+            card.querySelector('.card-back').style.display = 'none';
+            card.querySelector('.card-front').style.display = 'block';
+            card.style.background = 'white';
+            card.style.border = '2px solid #667eea';
+            
+            window.memoryGame.flipped.push(index);
+            
+            if (window.memoryGame.flipped.length === 2) {
+                window.memoryGame.moves++;
+                document.getElementById('moveCount').textContent = window.memoryGame.moves;
+                window.memoryGame.canFlip = false;
+                
+                setTimeout(checkMatch, 800);
+            }
+        }
+        
+        function checkMatch() {
+            const [idx1, idx2] = window.memoryGame.flipped;
+            const card1 = document.getElementById(`card${idx1}`);
+            const card2 = document.getElementById(`card${idx2}`);
+            const emoji1 = card1.dataset.emoji;
+            const emoji2 = card2.dataset.emoji;
+            
+            if (emoji1 === emoji2) {
+                // Match!
+                window.memoryGame.matched.push(idx1, idx2);
+                card1.style.background = '#28a745';
+                card2.style.background = '#28a745';
+                document.getElementById('pairsFound').textContent = `${window.memoryGame.matched.length / 2}/8`;
+                
+                if (window.memoryGame.matched.length === 16) {
+                    // Game won!
+                    setTimeout(() => {
+                        document.getElementById('memoryGrid').style.display = 'none';
+                        document.getElementById('finalMoves').textContent = window.memoryGame.moves;
+                        document.getElementById('memoryComplete').style.display = 'block';
+                    }, 500);
+                }
+            } else {
+                // No match - flip back
+                card1.querySelector('.card-back').style.display = 'block';
+                card1.querySelector('.card-front').style.display = 'none';
+                card1.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                card1.style.border = 'none';
+                
+                card2.querySelector('.card-back').style.display = 'block';
+                card2.querySelector('.card-front').style.display = 'none';
+                card2.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                card2.style.border = 'none';
+            }
+            
+            window.memoryGame.flipped = [];
+            window.memoryGame.canFlip = true;
+        }
+        
+        function completeMemoryGame() {
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            if (!alreadyCompleted) {
+                completeGame();
+            } else {
+                backToDashboard();
+            }
+        }
+        
+        // ============ QUIZ GAME FUNCTIONS ============
+        function showQuizQuestion() {
+            const q = window.quizGame.questions[window.quizGame.current];
+            document.getElementById('quizQuestion').textContent = q.q;
+            document.getElementById('quizCurrent').textContent = window.quizGame.current + 1;
+            
+            const optionsHTML = q.options.map((opt, i) => `
+                <button onclick="answerQuiz(${i})" 
+                        style="padding: 15px; background: white; border: 2px solid #667eea; border-radius: 8px; 
+                               font-size: 1.1em; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#667eea'; this.style.color='white';"
+                        onmouseout="this.style.background='white'; this.style.color='black';">
+                    ${opt}
+                </button>
+            `).join('');
+            
+            document.getElementById('quizOptions').innerHTML = optionsHTML;
+        }
+        
+        function answerQuiz(selected) {
+            const q = window.quizGame.questions[window.quizGame.current];
+            const correct = selected === q.correct;
+            
+            if (correct) {
+                window.quizGame.score++;
+                document.getElementById('quizScore').textContent = window.quizGame.score;
+            }
+            
+            // Show feedback
+            const buttons = document.getElementById('quizOptions').querySelectorAll('button');
+            buttons[selected].style.background = correct ? '#28a745' : '#ff4757';
+            buttons[selected].style.color = 'white';
+            buttons[selected].style.border = 'none';
+            buttons[q.correct].style.background = '#28a745';
+            buttons[q.correct].style.color = 'white';
+            buttons[q.correct].style.border = 'none';
+            
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+            
+            // Next question or finish
+            setTimeout(() => {
+                window.quizGame.current++;
+                if (window.quizGame.current < window.quizGame.questions.length) {
+                    showQuizQuestion();
+                } else {
+                    finishQuiz();
+                }
+            }, 1500);
+        }
+        
+        function finishQuiz() {
+            document.getElementById('quizContent').style.display = 'none';
+            const score = window.quizGame.score;
+            const total = window.quizGame.questions.length;
+            const percentage = (score / total) * 100;
+            
+            let message = '';
+            let color = '';
+            if (percentage === 100) {
+                message = `🏆 Perfect! ${score}/${total} correct!`;
+                color = '#28a745';
+            } else if (percentage >= 60) {
+                message = `✓ Good job! ${score}/${total} correct!`;
+                color = '#28a745';
+            } else {
+                message = `Try again! ${score}/${total} correct`;
+                color = '#ff4757';
+            }
+            
+            document.getElementById('quizFinalScore').textContent = message;
+            document.getElementById('quizFinalScore').style.color = color;
+            document.getElementById('quizComplete').style.display = 'block';
+        }
+        
+        function completeQuizGame() {
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            if (!alreadyCompleted && window.quizGame.score >= 3) {
+                completeGame();
+            } else if (!alreadyCompleted && window.quizGame.score < 3) {
+                alert('You need at least 3 correct answers to complete this game! Try again.');
+                backToDashboard();
+            } else {
+                backToDashboard();
+            }
+        }
+        
+        // ============ NUMBER GUESS GAME FUNCTIONS ============
+        function checkNumberGuess() {
+            const input = document.getElementById('numberGuessInput');
+            const guess = parseInt(input.value);
+            const result = document.getElementById('numberGuessResult');
+            
+            if (!guess || guess < 1 || guess > 100) {
+                result.textContent = '⚠️ Please enter a number between 1 and 100';
+                result.style.color = '#ff4757';
+                return;
+            }
+            
+            window.numberGuess.attempts++;
+            window.numberGuess.guesses.push(guess);
+            document.getElementById('guessAttempts').textContent = window.numberGuess.attempts;
+            
+            if (guess === window.numberGuess.secret) {
+                result.textContent = `🎉 Correct!`;
+                result.style.color = '#28a745';
+                document.getElementById('numberGuessContent').style.display = 'none';
+                document.getElementById('finalAttempts').textContent = window.numberGuess.attempts;
+                document.getElementById('numberGuessComplete').style.display = 'block';
+            } else if (guess < window.numberGuess.secret) {
+                result.textContent = '📈 Too low! Try higher...';
+                result.style.color = '#667eea';
+                window.numberGuess.min = Math.max(window.numberGuess.min, guess + 1);
+            } else {
+                result.textContent = '📉 Too high! Try lower...';
+                result.style.color = '#667eea';
+                window.numberGuess.max = Math.min(window.numberGuess.max, guess - 1);
+            }
+            
+            document.getElementById('guessRange').textContent = `${window.numberGuess.min}-${window.numberGuess.max}`;
+            document.getElementById('guessList').textContent = `Previous guesses: ${window.numberGuess.guesses.join(', ')}`;
+            input.value = '';
+        }
+        
+        function completeNumberGame() {
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            if (!alreadyCompleted) {
+                completeGame();
+            } else {
+                backToDashboard();
+            }
+        }
+        
+        // ============ COLOR MATCH GAME FUNCTIONS ============
+        function startColorMatch() {
+            document.getElementById('colorMatchStart').style.display = 'none';
+            document.getElementById('colorMatchGame').style.display = 'block';
+            
+            window.colorMatch = {
+                round: 1,
+                startTime: Date.now(),
+                colors: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PURPLE', 'ORANGE', 'PINK', 'BROWN'],
+                colorCodes: {
+                    'RED': '#ff0000',
+                    'BLUE': '#0000ff',
+                    'GREEN': '#00ff00',
+                    'YELLOW': '#ffff00',
+                    'PURPLE': '#800080',
+                    'ORANGE': '#ff8800',
+                    'PINK': '#ff69b4',
+                    'BROWN': '#8b4513'
+                }
+            };
+            
+            // Start timer
+            window.colorMatch.timer = setInterval(() => {
+                const elapsed = ((Date.now() - window.colorMatch.startTime) / 1000).toFixed(1);
+                document.getElementById('colorTime').textContent = elapsed + 's';
+            }, 100);
+            
+            showColorChallenge();
+        }
+        
+        function showColorChallenge() {
+            const colors = window.colorMatch.colors;
+            const wordColor = colors[Math.floor(Math.random() * colors.length)];
+            const textColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            window.colorMatch.currentMatch = wordColor === textColor;
+            
+            document.getElementById('colorText').textContent = wordColor;
+            document.getElementById('colorText').style.color = window.colorMatch.colorCodes[textColor];
+        }
+        
+        function answerColorMatch(userAnswer) {
+            const correct = userAnswer === window.colorMatch.currentMatch;
+            
+            if (!correct) {
+                // Wrong answer - show feedback and reset
+                const display = document.getElementById('colorDisplay');
+                display.style.background = '#ff4757';
+                setTimeout(() => {
+                    display.style.background = '#f0f0f0';
+                }, 200);
+                return;
+            }
+            
+            // Correct!
+            const display = document.getElementById('colorDisplay');
+            display.style.background = '#28a745';
+            setTimeout(() => {
+                display.style.background = '#f0f0f0';
+            }, 200);
+            
+            window.colorMatch.round++;
+            
+            if (window.colorMatch.round > 10) {
+                // Game complete!
+                clearInterval(window.colorMatch.timer);
+                const finalTime = ((Date.now() - window.colorMatch.startTime) / 1000).toFixed(1);
+                document.getElementById('colorMatchGame').style.display = 'none';
+                document.getElementById('finalTime').textContent = finalTime + 's';
+                document.getElementById('colorMatchComplete').style.display = 'block';
+            } else {
+                document.getElementById('colorRound').textContent = window.colorMatch.round;
+                showColorChallenge();
+            }
+        }
+        
+        function completeColorGame() {
+            if (window.colorMatch && window.colorMatch.timer) {
+                clearInterval(window.colorMatch.timer);
+            }
+            const alreadyCompleted = isGameCompleted(currentGameId);
+            if (!alreadyCompleted) {
+                completeGame();
+            } else {
+                backToDashboard();
+            }
+        }
+
+        // Reset progress (for testing)
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress and start fresh?')) {
+                // Stop timer if running
+                if (globalTimer) {
+                    clearInterval(globalTimer);
+                    globalTimer = null;
+                }
+                
+                // Get current username
+                const username = currentUser.username;
+                
+                // Get all users
+                let users = JSON.parse(localStorage.getItem('users') || '{}');
+                
+                // Reset this user's data completely
+                users[username] = {
+                    username: username,
+                    gamesCompleted: [],
+                    scores: {},
+                    timerStartTime: null,
+                    totalTime: 0,
+                    createdAt: users[username].createdAt || new Date().toISOString()
+                };
+                
+                // Save back to localStorage
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(users[username]));
+                
+                // Force page reload to reset everything
+                window.location.reload();
+            }
+        }
+
+        // Add reset button to console for testing
+        console.log('🎮 Game Dashboard Loaded!');
+        console.log('💡 Use resetProgress() in console to reset your progress for testing');
+    </script>
+</body>
+</html>
