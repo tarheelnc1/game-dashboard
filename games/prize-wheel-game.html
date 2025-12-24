@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prize Wheel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .description {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .prize-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .prize-btn {
+            padding: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .prize-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .prize-btn.selected {
+            background: #2ecc71;
+            border: 4px solid #27ae60;
+        }
+
+        .spin-btn {
+            padding: 20px 60px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .spin-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .spin-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .wheel-container {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 10px solid #2c3e50;
+            background: conic-gradient(
+                #e74c3c 0deg 90deg,
+                #3498db 90deg 180deg,
+                #f39c12 180deg 270deg,
+                #2ecc71 270deg 360deg
+            );
+            position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel.spinning {
+            animation: spin 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(1800deg); }
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #e74c3c;
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            border: 5px solid #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+
+        .result-message {
+            margin: 30px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-message.success {
+            color: #2ecc71;
+        }
+
+        .result-message.failure {
+            color: #e74c3c;
+        }
+
+        .try-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .try-again-btn:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .prize-selection {
+                grid-template-columns: 1fr;
+            }
+
+            .wheel {
+                width: 200px;
+                height: 200px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎡 Prize Wheel</h1>
+        <p class="description">Select which prize you think the wheel will land on!</p>
+
+        <div class="prize-selection" id="prizeSelection">
+            <button class="prize-btn" onclick="selectPrize('Prize 1')">🎁 Prize 1</button>
+            <button class="prize-btn" onclick="selectPrize('Prize 2')">🎁 Prize 2</button>
+            <button class="prize-btn" onclick="selectPrize('Prize 3')">🎁 Prize 3</button>
+            <button class="prize-btn" onclick="selectPrize('Prize 4')">🎁 Prize 4</button>
+        </div>
+
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()" disabled>
+            🎯 SPIN THE WHEEL!
+        </button>
+
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-center">SPIN</div>
+            </div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div id="tryAgainContainer" style="display: none;">
+            <button class="try-again-btn" onclick="resetGame()">🔄 Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPrize = null;
+        let isSpinning = false;
+
+        function selectPrize(prize) {
+            if (isSpinning) return;
+            
+            selectedPrize = prize;
+            
+            // Update button styles
+            document.querySelectorAll('.prize-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Enable spin button
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        function spinWheel() {
+            if (!selectedPrize || isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('resultMessage').textContent = '';
+            
+            // Disable prize selection
+            document.querySelectorAll('.prize-btn').forEach(btn => {
+                btn.style.pointerEvents = 'none';
+            });
+            
+            // Spin the wheel
+            const wheel = document.getElementById('wheel');
+            const prizes = ['Prize 1', 'Prize 2', 'Prize 3', 'Prize 4'];
+            const winningPrize = prizes[Math.floor(Math.random() * prizes.length)];
+            
+            // Add spinning animation
+            wheel.style.transform = 'rotate(1800deg)';
+            
+            // After 3 seconds, show result
+            setTimeout(() => {
+                showResult(winningPrize);
+            }, 3000);
+        }
+
+        function showResult(winningPrize) {
+            const resultMessage = document.getElementById('resultMessage');
+            const tryAgainContainer = document.getElementById('tryAgainContainer');
+            
+            if (winningPrize === selectedPrize) {
+                resultMessage.textContent = `🎉 YOU WIN! The wheel landed on ${winningPrize}!`;
+                resultMessage.className = 'result-message success';
+                
+                // Show success and allow to continue (in dashboard, this would auto-advance)
+                setTimeout(() => {
+                    alert('🎉 Congratulations! You won!\n\nIn the dashboard, this would automatically advance to the next game.');
+                    resetGame();
+                }, 1000);
+            } else {
+                resultMessage.textContent = `❌ Sorry! The wheel landed on ${winningPrize}. You picked ${selectedPrize}.`;
+                resultMessage.className = 'result-message failure';
+                tryAgainContainer.style.display = 'block';
+            }
+            
+            isSpinning = false;
+        }
+
+        function resetGame() {
+            selectedPrize = null;
+            isSpinning = false;
+            
+            // Reset wheel
+            const wheel = document.getElementById('wheel');
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            setTimeout(() => {
+                wheel.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            }, 10);
+            
+            // Reset UI
+            document.querySelectorAll('.prize-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.style.pointerEvents = 'auto';
+            });
+            
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('resultMessage').textContent = '';
+            document.getElementById('tryAgainContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

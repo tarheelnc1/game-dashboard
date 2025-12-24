@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Finish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .race-track {
+            height: 280px;
+            background: linear-gradient(to right, #ddd 0%, #ddd 90%, #ffd700 90%, #ffd700 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #333;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                #000,
+                #000 10px,
+                #fff 10px,
+                #fff 20px
+            );
+        }
+
+        .lane {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            border-bottom: 2px dashed #999;
+        }
+
+        .lane:last-of-type {
+            top: 50%;
+            border-bottom: none;
+        }
+
+        .racer {
+            position: absolute;
+            left: 20px;
+            font-size: 3em;
+            transition: all 0.1s linear;
+        }
+
+        .racer.red {
+            top: 40px;
+        }
+
+        .racer.blue {
+            bottom: 40px;
+        }
+
+        .racer.racing {
+            animation: race 3s ease-in-out forwards;
+        }
+
+        @keyframes race {
+            0% { left: 20px; }
+            100% { left: calc(100% - 80px); }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .red-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        .red-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 90, 111, 0.4);
+        }
+
+        .blue-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .blue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(78, 67, 118, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .race-track {
+                height: 220px;
+            }
+
+            .racer {
+                font-size: 2.5em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🏁 Race Finish</h1>
+        <p class="subtitle">Pick the winner of this close race!</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="race-track">
+            <div class="lane"></div>
+            <div class="lane"></div>
+            <div class="finish-line"></div>
+            <div class="racer red" id="redRacer">🏎️</div>
+            <div class="racer blue" id="blueRacer">🏎️</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn red-btn" id="redBtn">🔴 RED RACER</button>
+            <button class="choice-btn blue-btn" id="blueBtn">🔵 BLUE RACER</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const redRacer = document.getElementById('redRacer');
+        const blueRacer = document.getElementById('blueRacer');
+        const resultMessage = document.getElementById('resultMessage');
+        const redBtn = document.getElementById('redBtn');
+        const blueBtn = document.getElementById('blueBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            redBtn.disabled = true;
+            blueBtn.disabled = true;
+
+            // Countdown
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                if (countdown > 0) {
+                    resultMessage.textContent = countdown;
+                    countdown--;
+                } else {
+                    clearInterval(countdownInterval);
+                    resultMessage.textContent = '🏁 GO!';
+                    startRace(choice);
+                }
+            }, 1000);
+        }
+
+        function startRace(choice) {
+            // Randomly determine winner (50/50)
+            const winner = Math.random() < 0.5 ? 'red' : 'blue';
+            const won = choice === winner;
+
+            // Start both racers
+            redRacer.classList.add('racing');
+            blueRacer.classList.add('racing');
+
+            // Adjust animation duration slightly to create close finish
+            const baseDuration = 3000; // 3 seconds
+            const variation = 200; // 200ms difference
+            
+            if (winner === 'red') {
+                redRacer.style.animationDuration = `${baseDuration - variation}ms`;
+                blueRacer.style.animationDuration = `${baseDuration}ms`;
+            } else {
+                redRacer.style.animationDuration = `${baseDuration}ms`;
+                blueRacer.style.animationDuration = `${baseDuration - variation}ms`;
+            }
+
+            // Show result after race
+            setTimeout(() => {
+                if (won) {
+                    wins++;
+                    streak++;
+                    resultMessage.innerHTML = `🎉 You Win! ${winner.toUpperCase()} racer won!`;
+                    resultMessage.className = 'result-message win';
+                } else {
+                    losses++;
+                    streak = 0;
+                    resultMessage.innerHTML = `❌ You Lose! ${winner.toUpperCase()} racer won!`;
+                    resultMessage.className = 'result-message lose';
+                }
+
+                winsEl.textContent = wins;
+                lossesEl.textContent = losses;
+                streakEl.textContent = streak;
+
+                playAgainBtn.style.display = 'block';
+            }, baseDuration + 500);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            redBtn.disabled = false;
+            blueBtn.disabled = false;
+            redRacer.classList.remove('racing');
+            blueRacer.classList.remove('racing');
+            redRacer.style.animationDuration = '';
+            blueRacer.style.animationDuration = '';
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        redBtn.addEventListener('click', () => makeChoice('red'));
+        blueBtn.addEventListener('click', () => makeChoice('blue'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Launch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .launch-area {
+            height: 300px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, #8B7355 0%, #654321 100%);
+        }
+
+        .launch-pad {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: #333;
+            border-radius: 5px;
+        }
+
+        .rocket {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4em;
+            transition: all 0.5s ease;
+        }
+
+        .rocket.launching {
+            animation: launch 2s ease-out forwards;
+        }
+
+        .rocket.exploding {
+            animation: explode 0.5s ease-out forwards;
+        }
+
+        @keyframes launch {
+            0% { 
+                bottom: 70px;
+                opacity: 1;
+            }
+            100% { 
+                bottom: 400px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes explode {
+            0% { 
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.5);
+                filter: brightness(2);
+            }
+            100% { 
+                transform: translateX(-50%) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .smoke {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            opacity: 0;
+        }
+
+        .smoke.active {
+            animation: smoke 1s ease-out forwards;
+        }
+
+        @keyframes smoke {
+            0% {
+                opacity: 0.8;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-100px) scale(2);
+            }
+        }
+
+        .explosion {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6em;
+            opacity: 0;
+            display: none;
+        }
+
+        .explosion.active {
+            display: block;
+            animation: boom 0.8s ease-out;
+        }
+
+        @keyframes boom {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) scale(1.5);
+            }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .success-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .success-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        .explode-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        .explode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 90, 111, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .launch-area {
+                height: 250px;
+            }
+
+            .rocket {
+                font-size: 3em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🚀 Rocket Launch</h1>
+        <p class="subtitle">Will the rocket launch successfully?</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="launch-area" id="launchArea">
+            <div class="ground"></div>
+            <div class="launch-pad"></div>
+            <div class="rocket" id="rocket">🚀</div>
+            <div class="smoke" id="smoke">💨</div>
+            <div class="explosion" id="explosion">💥</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn success-btn" id="successBtn">✅ SUCCESS</button>
+            <button class="choice-btn explode-btn" id="explodeBtn">💥 EXPLODE</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const rocket = document.getElementById('rocket');
+        const smoke = document.getElementById('smoke');
+        const explosion = document.getElementById('explosion');
+        const resultMessage = document.getElementById('resultMessage');
+        const successBtn = document.getElementById('successBtn');
+        const explodeBtn = document.getElementById('explodeBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            successBtn.disabled = true;
+            explodeBtn.disabled = true;
+
+            // Randomly determine outcome (50/50)
+            const willExplode = Math.random() < 0.5;
+            const outcome = willExplode ? 'explode' : 'success';
+            const won = choice === outcome;
+
+            // Countdown and launch
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                if (countdown > 0) {
+                    resultMessage.textContent = countdown;
+                    countdown--;
+                } else {
+                    clearInterval(countdownInterval);
+                    resultMessage.textContent = '🚀 LAUNCH!';
+                    
+                    // Start smoke effect
+                    smoke.classList.add('active');
+
+                    setTimeout(() => {
+                        if (willExplode) {
+                            // Explode
+                            rocket.classList.add('exploding');
+                            explosion.classList.add('active');
+                            
+                            setTimeout(() => {
+                                rocket.style.display = 'none';
+                                showResult(won, 'The rocket exploded!');
+                            }, 800);
+                        } else {
+                            // Success
+                            rocket.classList.add('launching');
+                            
+                            setTimeout(() => {
+                                showResult(won, 'Successful launch!');
+                            }, 2000);
+                        }
+                    }, 500);
+                }
+            }, 1000);
+        }
+
+        function showResult(won, message) {
+            if (won) {
+                wins++;
+                streak++;
+                resultMessage.innerHTML = `🎉 You Win! ${message}`;
+                resultMessage.className = 'result-message win';
+            } else {
+                losses++;
+                streak = 0;
+                resultMessage.innerHTML = `❌ You Lose! ${message}`;
+                resultMessage.className = 'result-message lose';
+            }
+
+            winsEl.textContent = wins;
+            lossesEl.textContent = losses;
+            streakEl.textContent = streak;
+
+            playAgainBtn.style.display = 'block';
+        }
+
+        function resetGame() {
+            gameActive = true;
+            successBtn.disabled = false;
+            explodeBtn.disabled = false;
+            
+            rocket.style.display = 'block';
+            rocket.classList.remove('launching', 'exploding');
+            smoke.classList.remove('active');
+            explosion.classList.remove('active');
+            
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        successBtn.addEventListener('click', () => makeChoice('success'));
+        explodeBtn.addEventListener('click', () => makeChoice('explode'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

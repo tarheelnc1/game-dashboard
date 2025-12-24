@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Roll Challenge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .goal { font-size: 1.2em; color: #666; margin-bottom: 30px; }
+        .dice-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .dice {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 4px solid #333;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: roll 0.5s ease;
+        }
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        .stat { color: #666; }
+        .stat span { font-weight: bold; color: #667eea; }
+        button {
+            padding: 20px 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        button:hover { background: #5568d3; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .roll-result {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+        .sixes { color: #28a745; font-weight: bold; }
+        .win {
+            display: none;
+            padding: 30px;
+            background: #d4edda;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Dice Roll Challenge</h1>
+        <p class="goal">Roll three 6s to win!</p>
+
+        <div class="dice-container" id="diceContainer">
+            <div class="dice">🎲</div>
+            <div class="dice">🎲</div>
+            <div class="dice">🎲</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">Rolls: <span id="rolls">0</span></div>
+            <div class="stat">Sixes: <span id="sixes">0</span>/3</div>
+        </div>
+
+        <button onclick="rollDice()" id="rollBtn">🎲 ROLL DICE</button>
+
+        <div class="history" id="history"></div>
+
+        <div class="win" id="winMessage">
+            <h2 style="color: #28a745; margin-bottom: 15px;">🎉 YOU WIN!</h2>
+            <p style="font-size: 1.2em; margin-bottom: 10px;">
+                Three 6s in <strong><span id="finalRolls"></span></strong> rolls!
+            </p>
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        let rolls = 0;
+        let currentSixes = 0;
+        let isRolling = false;
+
+        function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+            document.getElementById('rollBtn').disabled = true;
+
+            rolls++;
+            document.getElementById('rolls').textContent = rolls;
+
+            const diceElements = document.querySelectorAll('.dice');
+            const results = [];
+
+            // Animate rolling
+            diceElements.forEach((dice, i) => {
+                dice.style.animation = 'none';
+                setTimeout(() => {
+                    dice.style.animation = 'roll 0.5s ease';
+                }, 10);
+
+                const result = Math.floor(Math.random() * 6) + 1;
+                results.push(result);
+
+                setTimeout(() => {
+                    dice.textContent = diceEmojis[result - 1];
+                }, 500);
+            });
+
+            setTimeout(() => {
+                const sixesRolled = results.filter(r => r === 6).length;
+                currentSixes = sixesRolled;
+                document.getElementById('sixes').textContent = currentSixes;
+
+                addToHistory(results, sixesRolled);
+
+                if (sixesRolled === 3) {
+                    win();
+                } else {
+                    document.getElementById('rollBtn').disabled = false;
+                    isRolling = false;
+                }
+            }, 600);
+        }
+
+        function addToHistory(results, sixesRolled) {
+            const history = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = 'roll-result';
+            item.innerHTML = results.map(r => diceEmojis[r-1]).join(' ');
+            if (sixesRolled > 0) {
+                item.innerHTML += ` <span class="sixes">(${sixesRolled} six${sixesRolled>1?'es':''})</span>`;
+            }
+            history.insertBefore(item, history.firstChild);
+        }
+
+        function win() {
+            document.getElementById('finalRolls').textContent = rolls;
+            document.querySelector('.dice-container').style.display = 'none';
+            document.getElementById('rollBtn').style.display = 'none';
+            document.getElementById('winMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

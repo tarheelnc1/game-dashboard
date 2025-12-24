@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card:hover:not(.flipped):not(.matched) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .memory-card.flipped {
+            background: white;
+            border: 3px solid #3498db;
+        }
+
+        .memory-card.matched {
+            background: #2ecc71;
+            cursor: default;
+            animation: matchPulse 0.5s;
+        }
+
+        @keyframes matchPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .card-back {
+            display: none;
+        }
+
+        .memory-card.flipped .card-back,
+        .memory-card.matched .card-back {
+            display: block;
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 40px;
+        }
+
+        .result-message.success {
+            color: #2ecc71;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .memory-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .memory-card {
+                font-size: 2em;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧠 Memory Match</h1>
+        <p class="description">Find all 8 matching pairs!</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Moves</div>
+                <div class="stat-value" id="movesCount">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Pairs Found</div>
+                <div class="stat-value" id="pairsFound">0/8</div>
+            </div>
+        </div>
+
+        <div class="memory-grid" id="memoryGrid"></div>
+
+        <div class="result-message" id="resultMessage"></div>
+    </div>
+
+    <script>
+        const emojis = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎬', '🎤'];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let canFlip = true;
+
+        function initGame() {
+            // Create pairs
+            cards = [...emojis, ...emojis]
+                .sort(() => Math.random() - 0.5)
+                .map((emoji, index) => ({
+                    id: index,
+                    emoji: emoji,
+                    flipped: false,
+                    matched: false
+                }));
+
+            renderGrid();
+            updateStats();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                if (card.flipped) cardElement.classList.add('flipped');
+                if (card.matched) cardElement.classList.add('matched');
+                
+                cardElement.innerHTML = `
+                    <div class="card-front">❓</div>
+                    <div class="card-back">${card.emoji}</div>
+                `;
+                
+                cardElement.onclick = () => flipCard(index);
+                grid.appendChild(cardElement);
+            });
+        }
+
+        function flipCard(index) {
+            if (!canFlip) return;
+            if (cards[index].flipped || cards[index].matched) return;
+            if (flippedCards.length >= 2) return;
+
+            cards[index].flipped = true;
+            flippedCards.push(index);
+            renderGrid();
+
+            if (flippedCards.length === 2) {
+                moves++;
+                updateStats();
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            canFlip = false;
+            const [index1, index2] = flippedCards;
+            
+            setTimeout(() => {
+                if (cards[index1].emoji === cards[index2].emoji) {
+                    // Match found!
+                    cards[index1].matched = true;
+                    cards[index2].matched = true;
+                    matchedPairs++;
+                    updateStats();
+                    renderGrid();
+                    
+                    if (matchedPairs === 8) {
+                        gameComplete();
+                    }
+                } else {
+                    // No match
+                    cards[index1].flipped = false;
+                    cards[index2].flipped = false;
+                    renderGrid();
+                }
+                
+                flippedCards = [];
+                canFlip = true;
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('movesCount').textContent = moves;
+            document.getElementById('pairsFound').textContent = `${matchedPairs}/8`;
+        }
+
+        function gameComplete() {
+            const resultMessage = document.getElementById('resultMessage');
+            resultMessage.textContent = `🎉 You found all pairs in ${moves} moves!`;
+            resultMessage.className = 'result-message success';
+            
+            setTimeout(() => {
+                alert(`🎉 Congratulations! You completed Memory Match!\n\nMoves: ${moves}\n\nIn the dashboard, this would automatically advance to the next game.`);
+            }, 500);
+        }
+
+        function resetGame() {
+            matchedPairs = 0;
+            moves = 0;
+            flippedCards = [];
+            canFlip = true;
+            document.getElementById('resultMessage').textContent = '';
+            initGame();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>

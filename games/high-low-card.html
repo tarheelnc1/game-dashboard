@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Low Card Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 150px;
+            height: 210px;
+            margin: 20px auto;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card.red {
+            color: #ff0000;
+        }
+
+        .card.black {
+            color: #000;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 20px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .high-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .low-btn {
+            background: #ff4757;
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #ff4757;
+        }
+
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .streak {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🃏 High-Low Card Game</h1>
+        <p class="score">Score: <span id="score">0</span> | Best Streak: <span id="bestStreak">0</span></p>
+
+        <div id="currentCard" class="card"></div>
+
+        <div class="buttons">
+            <button class="low-btn" onclick="guess('low')" id="lowBtn">📉 LOWER</button>
+            <button class="high-btn" onclick="guess('high')" id="highBtn">📈 HIGHER</button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="stats">
+            <div class="streak">Current Streak: <span id="streak">0</span></div>
+            <button onclick="restart()" style="margin-top: 15px; background: #667eea; color: white;">
+                🔄 New Game
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const numericValues = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
+
+        let currentCard = null;
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let isProcessing = false;
+
+        function getRandomCard() {
+            const suit = suits[Math.floor(Math.random() * suits.length)];
+            const value = values[Math.floor(Math.random() * values.length)];
+            return { suit, value, numeric: numericValues[value] };
+        }
+
+        function displayCard(card) {
+            const cardEl = document.getElementById('currentCard');
+            cardEl.textContent = card.value + card.suit;
+            cardEl.className = 'card ' + (['♥', '♦'].includes(card.suit) ? 'red' : 'black');
+        }
+
+        function guess(direction) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            document.getElementById('lowBtn').disabled = true;
+            document.getElementById('highBtn').disabled = true;
+
+            const nextCard = getRandomCard();
+            const currentValue = currentCard.numeric;
+            const nextValue = nextCard.numeric;
+
+            let correct = false;
+            if (direction === 'high' && nextValue > currentValue) correct = true;
+            if (direction === 'low' && nextValue < currentValue) correct = true;
+            if (nextValue === currentValue) correct = true; // Tie counts as correct
+
+            setTimeout(() => {
+                displayCard(nextCard);
+                currentCard = nextCard;
+
+                const resultEl = document.getElementById('result');
+                if (correct) {
+                    score++;
+                    streak++;
+                    if (streak > bestStreak) {
+                        bestStreak = streak;
+                        document.getElementById('bestStreak').textContent = bestStreak;
+                    }
+                    resultEl.textContent = '✓ Correct!';
+                    resultEl.className = 'result correct';
+                } else {
+                    streak = 0;
+                    resultEl.textContent = '✗ Wrong!';
+                    resultEl.className = 'result incorrect';
+                }
+
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak;
+
+                setTimeout(() => {
+                    resultEl.textContent = '';
+                    document.getElementById('lowBtn').disabled = false;
+                    document.getElementById('highBtn').disabled = false;
+                    isProcessing = false;
+                }, 1000);
+            }, 500);
+        }
+
+        function restart() {
+            score = 0;
+            streak = 0;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('result').textContent = '';
+            init();
+        }
+
+        function init() {
+            currentCard = getRandomCard();
+            displayCard(currentCard);
+        }
+
+        init();
+    </script>
+</body>
+</html>

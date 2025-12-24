@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Free Throw</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .court {
+            height: 300px;
+            background: linear-gradient(135deg, #d4a574 0%, #c9995e 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #8b6f47;
+        }
+
+        .backboard {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #333;
+            border-radius: 5px;
+        }
+
+        .rim {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 10px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .net {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 40px;
+            border-left: 2px solid rgba(255,255,255,0.5);
+            border-right: 2px solid rgba(255,255,255,0.5);
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .ball {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3em;
+            transition: all 0.1s linear;
+        }
+
+        .ball.shooting {
+            animation: shoot 1.5s ease-in-out forwards;
+        }
+
+        @keyframes shoot {
+            0% {
+                bottom: 40px;
+                left: 50%;
+            }
+            30% {
+                bottom: 200px;
+                left: 50%;
+            }
+            50% {
+                bottom: 100px;
+                left: 50%;
+            }
+            60% {
+                bottom: 105px;
+                left: 50%;
+            }
+            100% {
+                bottom: 100px;
+                left: 50%;
+            }
+        }
+
+        .ball.bounce-left {
+            animation: bounceLeft 0.8s ease-out forwards;
+        }
+
+        .ball.bounce-right {
+            animation: bounceRight 0.8s ease-out forwards;
+        }
+
+        @keyframes bounceLeft {
+            0% {
+                bottom: 100px;
+                left: 50%;
+            }
+            50% {
+                bottom: 80px;
+                left: 30%;
+            }
+            75% {
+                bottom: 60px;
+                left: 20%;
+            }
+            100% {
+                bottom: 40px;
+                left: 15%;
+            }
+        }
+
+        @keyframes bounceRight {
+            0% {
+                bottom: 100px;
+                left: 50%;
+            }
+            50% {
+                bottom: 80px;
+                left: 70%;
+            }
+            75% {
+                bottom: 60px;
+                left: 80%;
+            }
+            100% {
+                bottom: 40px;
+                left: 85%;
+            }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .left-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .left-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .right-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .right-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(250, 112, 154, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 156, 167, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .court {
+                height: 250px;
+            }
+
+            .ball {
+                font-size: 2.5em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🏀 Free Throw</h1>
+        <p class="subtitle">Which way will the ball bounce off the rim?</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="court">
+            <div class="backboard"></div>
+            <div class="rim"></div>
+            <div class="net"></div>
+            <div class="ball" id="ball">🏀</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn left-btn" id="leftBtn">⬅️ BOUNCE LEFT</button>
+            <button class="choice-btn right-btn" id="rightBtn">BOUNCE RIGHT ➡️</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const ball = document.getElementById('ball');
+        const resultMessage = document.getElementById('resultMessage');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            leftBtn.disabled = true;
+            rightBtn.disabled = true;
+
+            // Randomly determine outcome (50/50)
+            const bounceDirection = Math.random() < 0.5 ? 'left' : 'right';
+            const won = choice === bounceDirection;
+
+            // Shoot the ball
+            resultMessage.textContent = 'Shooting...';
+            ball.classList.add('shooting');
+
+            // After shot animation, show bounce
+            setTimeout(() => {
+                ball.classList.remove('shooting');
+                ball.classList.add(`bounce-${bounceDirection}`);
+
+                setTimeout(() => {
+                    if (won) {
+                        wins++;
+                        streak++;
+                        resultMessage.innerHTML = `🎉 You Win! Ball bounced ${bounceDirection}!`;
+                        resultMessage.className = 'result-message win';
+                    } else {
+                        losses++;
+                        streak = 0;
+                        resultMessage.innerHTML = `❌ You Lose! Ball bounced ${bounceDirection}!`;
+                        resultMessage.className = 'result-message lose';
+                    }
+
+                    winsEl.textContent = wins;
+                    lossesEl.textContent = losses;
+                    streakEl.textContent = streak;
+
+                    playAgainBtn.style.display = 'block';
+                }, 800);
+            }, 1500);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            leftBtn.disabled = false;
+            rightBtn.disabled = false;
+            ball.className = 'ball';
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        leftBtn.addEventListener('click', () => makeChoice('left'));
+        rightBtn.addEventListener('click', () => makeChoice('right'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odd or Even</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .number-display {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.5s ease;
+        }
+
+        .number-display.spinning {
+            animation: spin 0.5s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .odd-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .odd-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .even-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .even-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .number-display {
+                width: 150px;
+                height: 150px;
+                font-size: 4em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎲 Odd or Even</h1>
+        <p class="subtitle">Guess if the number will be odd or even!</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="number-display" id="numberDisplay">?</div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn odd-btn" id="oddBtn">ODD</button>
+            <button class="choice-btn even-btn" id="evenBtn">EVEN</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const numberDisplay = document.getElementById('numberDisplay');
+        const resultMessage = document.getElementById('resultMessage');
+        const oddBtn = document.getElementById('oddBtn');
+        const evenBtn = document.getElementById('evenBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function getRandomNumber() {
+            return Math.floor(Math.random() * 100) + 1;
+        }
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            oddBtn.disabled = true;
+            evenBtn.disabled = true;
+
+            // Animate number generation
+            numberDisplay.classList.add('spinning');
+            
+            setTimeout(() => {
+                const number = getRandomNumber();
+                const isEven = number % 2 === 0;
+                const numberType = isEven ? 'even' : 'odd';
+                const won = choice === numberType;
+
+                numberDisplay.textContent = number;
+                numberDisplay.classList.remove('spinning');
+
+                // Show result
+                setTimeout(() => {
+                    if (won) {
+                        wins++;
+                        streak++;
+                        resultMessage.innerHTML = `🎉 You Win! ${number} is ${numberType}!`;
+                        resultMessage.className = 'result-message win';
+                    } else {
+                        losses++;
+                        streak = 0;
+                        resultMessage.innerHTML = `❌ You Lose! ${number} is ${numberType}!`;
+                        resultMessage.className = 'result-message lose';
+                    }
+
+                    winsEl.textContent = wins;
+                    lossesEl.textContent = losses;
+                    streakEl.textContent = streak;
+
+                    playAgainBtn.style.display = 'block';
+                }, 300);
+            }, 500);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            oddBtn.disabled = false;
+            evenBtn.disabled = false;
+            numberDisplay.textContent = '?';
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        oddBtn.addEventListener('click', () => makeChoice('odd'));
+        evenBtn.addEventListener('click', () => makeChoice('even'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

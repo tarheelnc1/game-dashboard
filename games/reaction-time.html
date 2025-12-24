@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .test-area {
+            min-height: 400px;
+            border-radius: 15px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 40px;
+        }
+
+        .test-area.waiting {
+            background: #ff4757;
+        }
+
+        .test-area.ready {
+            background: #28a745;
+        }
+
+        .test-area.too-soon {
+            background: #FFA07A;
+        }
+
+        .test-message {
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .test-submessage {
+            font-size: 1.2em;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .attempt {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+
+        .attempt-number {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .time {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .average {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .rating {
+            font-size: 1.3em;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Reaction Time Test</h1>
+        <p style="color: #666; margin-bottom: 20px;">
+            Click when the screen turns GREEN!<br>
+            Complete 5 rounds
+        </p>
+
+        <div class="test-area waiting" id="testArea" onclick="handleClick()">
+            <div class="test-message" id="message">Click to Start</div>
+            <div class="test-submessage" id="submessage">Wait for GREEN</div>
+        </div>
+
+        <div class="results" id="results">
+            <h2 style="color: #667eea; margin-bottom: 20px;">Your Results</h2>
+            <div id="attemptsList"></div>
+            <div class="average" id="average"></div>
+            <div class="rating" id="rating"></div>
+            <button onclick="location.reload()">Test Again</button>
+        </div>
+    </div>
+
+    <script>
+        let state = 'waiting'; // waiting, ready, tooSoon
+        let startTime = 0;
+        let attempts = [];
+        let currentAttempt = 0;
+        let timeout = null;
+
+        function handleClick() {
+            const testArea = document.getElementById('testArea');
+            const message = document.getElementById('message');
+            const submessage = document.getElementById('submessage');
+
+            if (state === 'waiting') {
+                // Start the test
+                state = 'waiting-for-green';
+                testArea.className = 'test-area waiting';
+                message.textContent = 'Wait...';
+                submessage.textContent = 'Get ready!';
+                
+                // Random delay between 2-5 seconds
+                const delay = Math.random() * 3000 + 2000;
+                
+                timeout = setTimeout(() => {
+                    if (state === 'waiting-for-green') {
+                        state = 'ready';
+                        testArea.className = 'test-area ready';
+                        message.textContent = 'CLICK NOW!';
+                        submessage.textContent = '';
+                        startTime = Date.now();
+                    }
+                }, delay);
+                
+            } else if (state === 'waiting-for-green') {
+                // Clicked too soon
+                clearTimeout(timeout);
+                state = 'too-soon';
+                testArea.className = 'test-area too-soon';
+                message.textContent = 'Too Soon!';
+                submessage.textContent = 'Wait for green';
+                
+                setTimeout(() => {
+                    state = 'waiting';
+                    testArea.className = 'test-area waiting';
+                    message.textContent = 'Click to Try Again';
+                    submessage.textContent = 'Wait for GREEN';
+                }, 2000);
+                
+            } else if (state === 'ready') {
+                // Correct click
+                const reactionTime = Date.now() - startTime;
+                attempts.push(reactionTime);
+                currentAttempt++;
+                
+                if (currentAttempt < 5) {
+                    // Next attempt
+                    state = 'waiting';
+                    testArea.className = 'test-area waiting';
+                    message.textContent = `${reactionTime}ms!`;
+                    submessage.textContent = `Attempt ${currentAttempt}/5 - Click to continue`;
+                } else {
+                    // Test complete
+                    showResults();
+                }
+            }
+        }
+
+        function showResults() {
+            document.getElementById('testArea').style.display = 'none';
+            
+            const attemptsList = document.getElementById('attemptsList');
+            attemptsList.innerHTML = attempts.map((time, index) => `
+                <div class="attempt">
+                    <span class="attempt-number">Attempt ${index + 1}:</span>
+                    <span class="time">${time}ms</span>
+                </div>
+            `).join('');
+
+            const average = attempts.reduce((a, b) => a + b, 0) / attempts.length;
+            document.getElementById('average').textContent = `Average: ${Math.round(average)}ms`;
+
+            let rating = '';
+            if (average < 200) {
+                rating = '⚡ Lightning Fast!';
+            } else if (average < 250) {
+                rating = '🚀 Excellent!';
+            } else if (average < 300) {
+                rating = '👍 Good!';
+            } else if (average < 350) {
+                rating = '😊 Average';
+            } else {
+                rating = '🐌 Room for improvement!';
+            }
+            document.getElementById('rating').textContent = rating;
+
+            document.getElementById('results').classList.add('show');
+        }
+    </script>
+</body>
+</html>

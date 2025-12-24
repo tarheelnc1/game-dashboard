@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True or False Quiz</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        .progress { font-size: 1.2em; color: #666; margin-bottom: 30px; }
+        .question {
+            font-size: 1.5em;
+            color: #333;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        button {
+            padding: 25px 60px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .true-btn { background: #28a745; color: white; }
+        .false-btn { background: #ff4757; color: white; }
+        button:hover { transform: translateY(-3px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .correct { color: #28a745; }
+        .incorrect { color: #ff4757; }
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✓✗ True or False Quiz</h1>
+        <div class="progress">Question <span id="current">1</span>/10 | Score: <span id="score">0</span></div>
+        
+        <div class="question" id="question"></div>
+        
+        <div class="buttons">
+            <button class="true-btn" onclick="answer(true)" id="trueBtn">✓ TRUE</button>
+            <button class="false-btn" onclick="answer(false)" id="falseBtn">✗ FALSE</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+
+        <div class="result" id="result">
+            <h2 style="color: #667eea; margin-bottom: 15px;">Quiz Complete!</h2>
+            <p style="font-size: 2em; margin: 15px 0;">
+                Score: <strong><span id="finalScore"></span>/10</strong>
+            </p>
+            <p style="font-size: 1.3em;" id="rating"></p>
+            <button onclick="location.reload()" style="background: #667eea; color: white; margin-top: 15px;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "The Great Wall of China is visible from space", a: false },
+            { q: "Bananas grow on trees", a: false },
+            { q: "Lightning never strikes the same place twice", a: false },
+            { q: "Mount Everest is the tallest mountain on Earth", a: true },
+            { q: "Goldfish have a 3-second memory", a: false },
+            { q: "Humans share 50% of their DNA with bananas", a: true },
+            { q: "The Earth is closer to the sun in summer", a: false },
+            { q: "Sound travels faster in water than air", a: true },
+            { q: "Chameleons change color to match their surroundings", a: false },
+            { q: "Venus is the hottest planet in our solar system", a: true },
+            { q: "Sharks are mammals", a: false },
+            { q: "The Pacific Ocean is larger than the Atlantic", a: true },
+            { q: "Bulls are angered by the color red", a: false },
+            { q: "Humans use only 10% of their brain", a: false },
+            { q: "Water boils at 100°C at sea level", a: true }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let gameQuestions = [];
+
+        function init() {
+            gameQuestions = [...questions].sort(() => Math.random() - 0.5).slice(0, 10);
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('question').textContent = gameQuestions[currentQ].q;
+            document.getElementById('current').textContent = currentQ + 1;
+            document.getElementById('feedback').textContent = '';
+        }
+
+        function answer(userAnswer) {
+            document.getElementById('trueBtn').disabled = true;
+            document.getElementById('falseBtn').disabled = true;
+            
+            const correct = userAnswer === gameQuestions[currentQ].a;
+            const feedback = document.getElementById('feedback');
+            
+            if (correct) {
+                score++;
+                document.getElementById('score').textContent = score;
+                feedback.textContent = '✓ Correct!';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = '✗ Wrong!';
+                feedback.className = 'feedback incorrect';
+            }
+            
+            currentQ++;
+            
+            setTimeout(() => {
+                if (currentQ >= 10) {
+                    endGame();
+                } else {
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
+                    showQuestion();
+                }
+            }, 1200);
+        }
+
+        function endGame() {
+            document.querySelector('.question').style.display = 'none';
+            document.querySelector('.buttons').style.display = 'none';
+            document.querySelector('.feedback').style.display = 'none';
+            
+            document.getElementById('finalScore').textContent = score;
+            
+            let rating = '';
+            if (score >= 9) rating = '🏆 Genius!';
+            else if (score >= 7) rating = '🌟 Excellent!';
+            else if (score >= 5) rating = '👍 Good!';
+            else rating = '📚 Keep Learning!';
+            
+            document.getElementById('rating').textContent = rating;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        init();
+    </script>
+</body>
+</html>

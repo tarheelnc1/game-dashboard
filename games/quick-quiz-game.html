@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .progress {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .score {
+            color: #3498db;
+            font-size: 1.5em;
+        }
+
+        .question-container {
+            margin: 30px 0;
+        }
+
+        .question {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: grid;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            padding: 20px;
+            font-size: 1.1em;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+            transform: translateX(10px);
+        }
+
+        .answer-btn.correct {
+            background: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .answer-btn.incorrect {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .next-btn {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .next-btn:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 1.3em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .result-message.success {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .result-message.failure {
+            background: #fadbd8;
+            color: #c0392b;
+        }
+
+        .final-score {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .final-score-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .retry-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .retry-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .question {
+                font-size: 1.2em;
+            }
+
+            .answer-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Quick Quiz</h1>
+        <p class="description">Answer 5 trivia questions correctly!</p>
+
+        <div class="progress">
+            <div class="progress-text">
+                Question <span id="currentQuestion">1</span>/5 | 
+                Score: <span class="score" id="score">0</span>/5
+            </div>
+        </div>
+
+        <div class="question-container" id="questionContainer"></div>
+
+        <div id="resultContainer"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the capital of France?",
+                answers: ["London", "Berlin", "Paris", "Madrid"],
+                correct: 2
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                answers: ["Venus", "Mars", "Jupiter", "Saturn"],
+                correct: 1
+            },
+            {
+                question: "What is 7 × 8?",
+                answers: ["54", "56", "58", "60"],
+                correct: 1
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                answers: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+                correct: 2
+            },
+            {
+                question: "What is the largest ocean on Earth?",
+                answers: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                correct: 3
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function renderQuestion() {
+            const container = document.getElementById('questionContainer');
+            const q = questions[currentQuestionIndex];
+
+            container.innerHTML = `
+                <div class="question">${q.question}</div>
+                <div class="answers" id="answers">
+                    ${q.answers.map((answer, index) => `
+                        <button class="answer-btn" onclick="checkAnswer(${index})" id="answer${index}">
+                            ${answer}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            answered = false;
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === q.correct) {
+                    btn.classList.add('correct');
+                }
+                if (index === selectedIndex && index !== q.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === q.correct) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+
+            // Show next button or final results
+            setTimeout(() => {
+                if (currentQuestionIndex < questions.length - 1) {
+                    showNextButton();
+                } else {
+                    showFinalResults();
+                }
+            }, 1500);
+        }
+
+        function showNextButton() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML += `
+                <button class="next-btn" onclick="nextQuestion()">
+                    Next Question →
+                </button>
+            `;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuestion();
+        }
+
+        function showFinalResults() {
+            const resultContainer = document.getElementById('resultContainer');
+            const passed = score >= 3;
+
+            if (passed) {
+                resultContainer.innerHTML = `
+                    <div class="result-message success">
+                        🎉 Congratulations! You passed!
+                    </div>
+                    <div class="final-score">
+                        <div>Your Score:</div>
+                        <div class="final-score-value">${score}/5</div>
+                    </div>
+                    <p style="text-align: center; color: #666; margin: 20px 0;">
+                        In the dashboard, you would automatically advance to the next game!
+                    </p>
+                `;
+                
+                setTimeout(() => {
+                    alert(`🎉 Great job! You scored ${score}/5!\n\nIn the dashboard, this would automatically advance to the next game.`);
+                }, 500);
+            } else {
+                resultContainer.innerHTML = `
+                    <div class="result-message failure">
+                        ❌ You need at least 3 correct answers to pass
+                    </div>
+                    <div class="final-score">
+                        <div>Your Score:</div>
+                        <div class="final-score-value">${score}/5</div>
+                    </div>
+                    <button class="retry-btn" onclick="restartQuiz()">
+                        🔄 Try Again
+                    </button>
+                `;
+            }
+
+            document.getElementById('questionContainer').innerHTML = '';
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('score').textContent = 0;
+            document.getElementById('resultContainer').innerHTML = '';
+            renderQuestion();
+        }
+
+        // Start the quiz
+        renderQuestion();
+    </script>
+</body>
+</html>

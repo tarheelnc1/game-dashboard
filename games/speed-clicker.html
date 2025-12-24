@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Clicker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        .timer { font-size: 3em; color: #ff4757; font-weight: bold; margin: 30px 0; }
+        .count { font-size: 4em; color: #667eea; font-weight: bold; margin: 20px 0; }
+        .click-area {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 2em;
+            color: white;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: all 0.1s;
+            user-select: none;
+        }
+        .click-area:active { transform: scale(0.98); }
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #5568d3; }
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .result h2 { color: #667eea; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Speed Clicker</h1>
+        <p style="color: #666; margin-bottom: 20px;">Click as many times as you can in 10 seconds!</p>
+        
+        <div class="timer" id="timer">10.0</div>
+        <div class="count" id="count">0</div>
+        
+        <div class="click-area" id="clickArea" onclick="click()">
+            Click to Start!
+        </div>
+
+        <div class="result" id="result">
+            <h2>Time's Up!</h2>
+            <p style="font-size: 2em; margin: 15px 0;">
+                <strong id="finalScore"></strong> clicks
+            </p>
+            <p style="font-size: 1.2em; color: #666;">
+                <span id="cps"></span> clicks per second
+            </p>
+            <p style="font-size: 1.5em; margin-top: 15px;" id="rating"></p>
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let clicks = 0;
+        let started = false;
+        let startTime = 0;
+        let timerInterval = null;
+
+        function click() {
+            if (!started) {
+                started = true;
+                startTime = Date.now();
+                document.getElementById('clickArea').textContent = 'CLICK!';
+                
+                timerInterval = setInterval(() => {
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const remaining = Math.max(0, 10 - elapsed);
+                    document.getElementById('timer').textContent = remaining.toFixed(1);
+                    
+                    if (remaining <= 0) {
+                        endGame();
+                    }
+                }, 50);
+            }
+            
+            if (started && Date.now() - startTime < 10000) {
+                clicks++;
+                document.getElementById('count').textContent = clicks;
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('clickArea').style.display = 'none';
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('count').style.display = 'none';
+            
+            const cps = (clicks / 10).toFixed(1);
+            document.getElementById('finalScore').textContent = clicks;
+            document.getElementById('cps').textContent = cps;
+            
+            let rating = '';
+            if (clicks >= 100) rating = '🔥 INSANE!';
+            else if (clicks >= 80) rating = '⚡ Amazing!';
+            else if (clicks >= 60) rating = '🎯 Great!';
+            else if (clicks >= 40) rating = '👍 Good!';
+            else rating = '😊 Keep Practicing!';
+            
+            document.getElementById('rating').textContent = rating;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

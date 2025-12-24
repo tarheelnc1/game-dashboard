@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .scrambled-word {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 10px;
+            margin: 40px 0;
+            min-height: 80px;
+        }
+
+        .hint {
+            font-size: 1.1em;
+            color: #999;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            font-size: 1.5em;
+            padding: 15px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .skip-btn {
+            background: #ff4757;
+            color: white;
+        }
+
+        .hint-btn {
+            background: #FFA07A;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #ff4757;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Word Scramble</h1>
+        
+        <div class="progress">Word <span id="current">1</span> of 5</div>
+        
+        <div class="scrambled-word" id="scrambled"></div>
+        <div class="hint" id="hint"></div>
+        
+        <input type="text" class="answer-input" id="answer" placeholder="Type your answer..." onkeypress="if(event.key==='Enter') checkAnswer()">
+        
+        <div class="buttons">
+            <button class="hint-btn" onclick="showHint()" id="hintBtn">💡 Hint</button>
+            <button class="submit-btn" onclick="checkAnswer()">Submit</button>
+            <button class="skip-btn" onclick="skipWord()">Skip</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+
+        <div class="result" id="result">
+            <h2>🎉 Game Complete!</h2>
+            <div style="font-size: 1.3em; margin: 20px 0;">
+                Score: <strong><span id="score"></span>/5</strong>
+            </div>
+            <button onclick="location.reload()" style="background: #667eea; color: white;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { word: 'JAVASCRIPT', hint: 'Popular programming language' },
+            { word: 'ELEPHANT', hint: 'Large animal with a trunk' },
+            { word: 'MOUNTAIN', hint: 'Tall natural landform' },
+            { word: 'KEYBOARD', hint: 'Computer input device' },
+            { word: 'RAINBOW', hint: 'Colorful arc in the sky' },
+            { word: 'BUTTERFLY', hint: 'Insect with colorful wings' },
+            { word: 'CHOCOLATE', hint: 'Sweet brown treat' },
+            { word: 'UMBRELLA', hint: 'Protects from rain' },
+            { word: 'TELESCOPE', hint: 'Used to see stars' },
+            { word: 'GUITAR', hint: 'Six-stringed instrument' }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let gameWords = [];
+        let hintShown = false;
+
+        function shuffleWord(word) {
+            const arr = word.split('');
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr.join('');
+        }
+
+        function startGame() {
+            // Select 5 random words
+            const shuffled = [...words].sort(() => Math.random() - 0.5);
+            gameWords = shuffled.slice(0, 5);
+            showWord();
+        }
+
+        function showWord() {
+            if (currentIndex >= 5) {
+                endGame();
+                return;
+            }
+
+            const wordObj = gameWords[currentIndex];
+            let scrambled = shuffleWord(wordObj.word);
+            
+            // Make sure scrambled is different from original
+            while (scrambled === wordObj.word && wordObj.word.length > 3) {
+                scrambled = shuffleWord(wordObj.word);
+            }
+
+            document.getElementById('scrambled').textContent = scrambled;
+            document.getElementById('hint').textContent = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('current').textContent = currentIndex + 1;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('hintBtn').disabled = false;
+            hintShown = false;
+        }
+
+        function showHint() {
+            if (!hintShown) {
+                document.getElementById('hint').textContent = '💡 ' + gameWords[currentIndex].hint;
+                hintShown = true;
+                document.getElementById('hintBtn').disabled = true;
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answer').value.toUpperCase().trim();
+            const correctAnswer = gameWords[currentIndex].word;
+            const feedback = document.getElementById('feedback');
+
+            if (!userAnswer) {
+                feedback.textContent = 'Please enter an answer!';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                feedback.textContent = '✓ Correct!';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `✗ Wrong! The answer was ${correctAnswer}`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            currentIndex++;
+            setTimeout(showWord, 1500);
+        }
+
+        function skipWord() {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = `Skipped! The answer was ${gameWords[currentIndex].word}`;
+            feedback.className = 'feedback incorrect';
+            currentIndex++;
+            setTimeout(showWord, 1500);
+        }
+
+        function endGame() {
+            document.querySelector('.scrambled-word').style.display = 'none';
+            document.querySelector('.hint').style.display = 'none';
+            document.querySelector('.answer-input').style.display = 'none';
+            document.querySelector('.buttons').style.display = 'none';
+            document.querySelector('.feedback').style.display = 'none';
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

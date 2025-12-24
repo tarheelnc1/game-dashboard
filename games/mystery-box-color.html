@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Box Color</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8e44ad 0%, #3498db 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .box-area {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            perspective: 1000px;
+        }
+
+        .mystery-box {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+
+        .mystery-box.opening {
+            animation: shake 0.5s ease-in-out, openBox 1s 0.5s ease-out forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        @keyframes openBox {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotateY(20deg);
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .box-closed {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            position: relative;
+        }
+
+        .box-closed::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            transform: translateY(-50%);
+        }
+
+        .box-closed::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            transform: translateX(-50%);
+        }
+
+        .box-content {
+            display: none;
+            font-size: 8em;
+            animation: revealContent 0.8s ease-out;
+        }
+
+        .box-content.show {
+            display: block;
+        }
+
+        @keyframes revealContent {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 2em;
+            opacity: 0;
+        }
+
+        .sparkles.active .sparkle {
+            animation: sparkle 1s ease-out;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(1);
+            }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .blue-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .blue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .gold-btn {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+
+        .gold-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(253, 160, 133, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8e44ad 0%, #3498db 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .mystery-box {
+                width: 150px;
+                height: 150px;
+            }
+
+            .box-closed {
+                font-size: 4em;
+            }
+
+            .box-content {
+                font-size: 6em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>📦 Mystery Box</h1>
+        <p class="subtitle">What color is inside the mystery box?</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="box-area">
+            <div class="mystery-box" id="mysteryBox">
+                <div class="box-closed" id="boxClosed">❓</div>
+            </div>
+            <div class="box-content" id="boxContent"></div>
+            <div class="sparkles" id="sparkles">
+                <span class="sparkle" style="--tx: -50px; --ty: -50px;">✨</span>
+                <span class="sparkle" style="--tx: 50px; --ty: -50px;">✨</span>
+                <span class="sparkle" style="--tx: -50px; --ty: 50px;">✨</span>
+                <span class="sparkle" style="--tx: 50px; --ty: 50px;">✨</span>
+                <span class="sparkle" style="--tx: 0; --ty: -70px;">✨</span>
+                <span class="sparkle" style="--tx: 0; --ty: 70px;">✨</span>
+            </div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn blue-btn" id="blueBtn">💙 BLUE</button>
+            <button class="choice-btn gold-btn" id="goldBtn">💛 GOLD</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const mysteryBox = document.getElementById('mysteryBox');
+        const boxClosed = document.getElementById('boxClosed');
+        const boxContent = document.getElementById('boxContent');
+        const sparkles = document.getElementById('sparkles');
+        const resultMessage = document.getElementById('resultMessage');
+        const blueBtn = document.getElementById('blueBtn');
+        const goldBtn = document.getElementById('goldBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            blueBtn.disabled = true;
+            goldBtn.disabled = true;
+
+            // Randomly determine outcome (50/50)
+            const color = Math.random() < 0.5 ? 'blue' : 'gold';
+            const won = choice === color;
+
+            // Open the box
+            mysteryBox.classList.add('opening');
+
+            setTimeout(() => {
+                // Hide closed box and show content
+                boxClosed.style.display = 'none';
+                
+                if (color === 'blue') {
+                    boxContent.textContent = '💙';
+                } else {
+                    boxContent.textContent = '💛';
+                }
+                
+                boxContent.classList.add('show');
+                sparkles.classList.add('active');
+
+                setTimeout(() => {
+                    if (won) {
+                        wins++;
+                        streak++;
+                        resultMessage.innerHTML = `🎉 You Win! It was ${color}!`;
+                        resultMessage.className = 'result-message win';
+                    } else {
+                        losses++;
+                        streak = 0;
+                        resultMessage.innerHTML = `❌ You Lose! It was ${color}!`;
+                        resultMessage.className = 'result-message lose';
+                    }
+
+                    winsEl.textContent = wins;
+                    lossesEl.textContent = losses;
+                    streakEl.textContent = streak;
+
+                    playAgainBtn.style.display = 'block';
+                }, 800);
+            }, 1500);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            blueBtn.disabled = false;
+            goldBtn.disabled = false;
+            mysteryBox.classList.remove('opening');
+            boxClosed.style.display = 'flex';
+            boxContent.classList.remove('show');
+            sparkles.classList.remove('active');
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        blueBtn.addEventListener('click', () => makeChoice('blue'));
+        goldBtn.addEventListener('click', () => makeChoice('gold'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

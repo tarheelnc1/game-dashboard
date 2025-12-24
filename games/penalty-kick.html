@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penalty Kick Direction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .field {
+            height: 300px;
+            background: linear-gradient(to bottom, #7ec850 0%, #5da83e 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid white;
+        }
+
+        .goal {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 150px;
+            border: 5px solid white;
+            border-bottom: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .goal-net {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.3) 20px, rgba(255,255,255,0.3) 21px),
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.3) 20px, rgba(255,255,255,0.3) 21px);
+        }
+
+        .goalie {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3em;
+            transition: all 0.5s ease;
+        }
+
+        .goalie.dive-left {
+            animation: diveLeft 0.5s ease-out forwards;
+        }
+
+        .goalie.dive-right {
+            animation: diveRight 0.5s ease-out forwards;
+        }
+
+        @keyframes diveLeft {
+            0% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+            100% {
+                left: 20%;
+                transform: translateX(-50%) rotate(-90deg);
+            }
+        }
+
+        @keyframes diveRight {
+            0% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+            100% {
+                left: 80%;
+                transform: translateX(-50%) rotate(90deg);
+            }
+        }
+
+        .ball {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            opacity: 0;
+        }
+
+        .ball.shooting-left {
+            animation: shootLeft 1s ease-out forwards;
+        }
+
+        .ball.shooting-right {
+            animation: shootRight 1s ease-out forwards;
+        }
+
+        @keyframes shootLeft {
+            0% {
+                bottom: 30px;
+                left: 50%;
+                opacity: 1;
+            }
+            100% {
+                bottom: 130px;
+                left: 20%;
+                opacity: 1;
+            }
+        }
+
+        @keyframes shootRight {
+            0% {
+                bottom: 30px;
+                left: 50%;
+                opacity: 1;
+            }
+            100% {
+                bottom: 130px;
+                left: 80%;
+                opacity: 1;
+            }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .left-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .left-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .right-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .right-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 224, 99, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .field {
+                height: 250px;
+            }
+
+            .goal {
+                width: 200px;
+                height: 120px;
+            }
+
+            .goalie {
+                font-size: 2.5em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⚽ Penalty Kick</h1>
+        <p class="subtitle">Guess which way the goalie will dive!</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="goal">
+                <div class="goal-net"></div>
+            </div>
+            <div class="goalie" id="goalie">🧤</div>
+            <div class="ball" id="ball">⚽</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn left-btn" id="leftBtn">⬅️ LEFT</button>
+            <button class="choice-btn right-btn" id="rightBtn">➡️ RIGHT</button>
+        </div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let gameActive = true;
+
+        const goalie = document.getElementById('goalie');
+        const ball = document.getElementById('ball');
+        const resultMessage = document.getElementById('resultMessage');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winsEl = document.getElementById('wins');
+        const lossesEl = document.getElementById('losses');
+        const streakEl = document.getElementById('streak');
+
+        function makeChoice(choice) {
+            if (!gameActive) return;
+
+            gameActive = false;
+            leftBtn.disabled = true;
+            rightBtn.disabled = true;
+
+            // Randomly determine outcome (50/50)
+            const goalieDirection = Math.random() < 0.5 ? 'left' : 'right';
+            const won = choice === goalieDirection;
+
+            // Countdown
+            resultMessage.textContent = 'Ready...';
+            
+            setTimeout(() => {
+                resultMessage.textContent = 'Set...';
+                
+                setTimeout(() => {
+                    resultMessage.textContent = 'SHOOT!';
+                    
+                    // Show ball and goalie dive
+                    setTimeout(() => {
+                        ball.classList.add(`shooting-${goalieDirection}`);
+                        goalie.classList.add(`dive-${goalieDirection}`);
+
+                        setTimeout(() => {
+                            if (won) {
+                                wins++;
+                                streak++;
+                                resultMessage.innerHTML = `🎉 GOAL! The goalie dove ${goalieDirection}!`;
+                                resultMessage.className = 'result-message win';
+                            } else {
+                                losses++;
+                                streak = 0;
+                                resultMessage.innerHTML = `❌ SAVE! The goalie dove ${goalieDirection}!`;
+                                resultMessage.className = 'result-message lose';
+                            }
+
+                            winsEl.textContent = wins;
+                            lossesEl.textContent = losses;
+                            streakEl.textContent = streak;
+
+                            playAgainBtn.style.display = 'block';
+                        }, 1000);
+                    }, 200);
+                }, 1000);
+            }, 1000);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            leftBtn.disabled = false;
+            rightBtn.disabled = false;
+            goalie.className = 'goalie';
+            ball.className = 'ball';
+            resultMessage.textContent = '';
+            playAgainBtn.style.display = 'none';
+        }
+
+        leftBtn.addEventListener('click', () => makeChoice('left'));
+        rightBtn.addEventListener('click', () => makeChoice('right'));
+        playAgainBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>

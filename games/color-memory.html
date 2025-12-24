@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .level {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 400px;
+        }
+
+        .color-box {
+            aspect-ratio: 1;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 4px solid transparent;
+        }
+
+        .color-box:hover {
+            transform: scale(1.05);
+        }
+
+        .color-box.flash {
+            border: 4px solid white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.8);
+        }
+
+        .color-box.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        #instructions {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .failure {
+            color: #ff4757;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Color Memory</h1>
+        <p class="level">Level: <span id="level">1</span></p>
+
+        <div id="instructions">Watch the pattern!</div>
+
+        <div class="color-grid">
+            <div class="color-box" id="color0" style="background: #ff4757;" onclick="playerClick(0)"></div>
+            <div class="color-box" id="color1" style="background: #4ECDC4;" onclick="playerClick(1)"></div>
+            <div class="color-box" id="color2" style="background: #FFA07A;" onclick="playerClick(2)"></div>
+            <div class="color-box" id="color3" style="background: #45B7D1;" onclick="playerClick(3)"></div>
+        </div>
+
+        <button id="startBtn" onclick="startGame()">Start Game</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        let sequence = [];
+        let playerSequence = [];
+        let level = 1;
+        let isPlaying = false;
+        let isPlayerTurn = false;
+
+        const colors = ['#ff4757', '#4ECDC4', '#FFA07A', '#45B7D1'];
+
+        function startGame() {
+            level = 1;
+            sequence = [];
+            document.getElementById('level').textContent = level;
+            document.getElementById('result').textContent = '';
+            document.getElementById('startBtn').disabled = true;
+            nextRound();
+        }
+
+        function nextRound() {
+            isPlayerTurn = false;
+            playerSequence = [];
+            sequence.push(Math.floor(Math.random() * 4));
+            
+            document.getElementById('instructions').textContent = 'Watch the pattern!';
+            disableBoxes(true);
+            
+            setTimeout(() => {
+                playSequence();
+            }, 1000);
+        }
+
+        function playSequence() {
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < sequence.length) {
+                    flashColor(sequence[i]);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        isPlayerTurn = true;
+                        document.getElementById('instructions').textContent = 'Your turn! Repeat the pattern';
+                        disableBoxes(false);
+                    }, 500);
+                }
+            }, 800);
+        }
+
+        function flashColor(index) {
+            const box = document.getElementById('color' + index);
+            box.classList.add('flash');
+            
+            setTimeout(() => {
+                box.classList.remove('flash');
+            }, 400);
+        }
+
+        function playerClick(index) {
+            if (!isPlayerTurn) return;
+
+            flashColor(index);
+            playerSequence.push(index);
+
+            // Check if correct
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                // Wrong!
+                gameOver();
+                return;
+            }
+
+            // Check if sequence complete
+            if (playerSequence.length === sequence.length) {
+                // Correct! Next level
+                isPlayerTurn = false;
+                disableBoxes(true);
+                level++;
+                document.getElementById('level').textContent = level;
+                document.getElementById('instructions').textContent = '✓ Correct! Get ready...';
+                
+                setTimeout(() => {
+                    nextRound();
+                }, 1500);
+            }
+        }
+
+        function gameOver() {
+            isPlayerTurn = false;
+            disableBoxes(true);
+            document.getElementById('instructions').textContent = '';
+            document.getElementById('result').innerHTML = `
+                <div class="failure">
+                    ✗ Game Over!<br>
+                    You reached Level ${level}
+                </div>
+            `;
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function disableBoxes(disabled) {
+            for (let i = 0; i < 4; i++) {
+                const box = document.getElementById('color' + i);
+                if (disabled) {
+                    box.classList.add('disabled');
+                } else {
+                    box.classList.remove('disabled');
+                }
+            }
+        }
+
+        disableBoxes(true);
+    </script>
+</body>
+</html>

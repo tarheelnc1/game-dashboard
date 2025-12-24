@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Sprint</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .stat {
+            color: #666;
+        }
+
+        .stat span {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .problem {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin: 40px 0;
+            min-height: 80px;
+        }
+
+        .answer-input {
+            font-size: 2em;
+            padding: 15px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            text-align: center;
+            width: 200px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .result-stats {
+            font-size: 1.3em;
+            line-height: 1.8;
+        }
+
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+            min-height: 30px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #ff4757;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Math Sprint</h1>
+        
+        <div class="stats">
+            <div class="stat">Question: <span id="question">0</span>/10</div>
+            <div class="stat">Correct: <span id="correct">0</span></div>
+            <div class="stat">Time: <span id="timer">0.0</span>s</div>
+        </div>
+
+        <div id="gameArea">
+            <div class="problem" id="problem">Click Start to Begin!</div>
+            <input type="number" class="answer-input" id="answerInput" style="display: none;" onkeypress="if(event.key==='Enter') submitAnswer()">
+            <div class="feedback" id="feedback"></div>
+            <button id="startBtn" onclick="startGame()">Start Sprint</button>
+            <button id="submitBtn" onclick="submitAnswer()" style="display: none;">Submit</button>
+        </div>
+
+        <div class="result" id="result">
+            <h2>🏁 Sprint Complete!</h2>
+            <div class="result-stats">
+                <div>Correct Answers: <strong><span id="finalCorrect"></span>/10</strong></div>
+                <div>Total Time: <strong><span id="finalTime"></span>s</strong></div>
+                <div>Average per Question: <strong><span id="avgTime"></span>s</strong></div>
+            </div>
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let currentAnswer = 0;
+        let startTime = 0;
+        let timerInterval = null;
+        let problems = [];
+
+        function generateProblem() {
+            const operations = ['+', '-', '×'];
+            const op = operations[Math.floor(Math.random() * operations.length)];
+            let num1, num2, answer;
+
+            if (op === '+') {
+                num1 = Math.floor(Math.random() * 50) + 1;
+                num2 = Math.floor(Math.random() * 50) + 1;
+                answer = num1 + num2;
+            } else if (op === '-') {
+                num1 = Math.floor(Math.random() * 50) + 20;
+                num2 = Math.floor(Math.random() * num1);
+                answer = num1 - num2;
+            } else {
+                num1 = Math.floor(Math.random() * 12) + 1;
+                num2 = Math.floor(Math.random() * 12) + 1;
+                answer = num1 * num2;
+            }
+
+            return {
+                text: `${num1} ${op} ${num2}`,
+                answer: answer
+            };
+        }
+
+        function startGame() {
+            currentQuestion = 0;
+            correctAnswers = 0;
+            problems = [];
+            
+            for (let i = 0; i < 10; i++) {
+                problems.push(generateProblem());
+            }
+
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('answerInput').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 100);
+            
+            showNextProblem();
+        }
+
+        function showNextProblem() {
+            if (currentQuestion >= 10) {
+                endGame();
+                return;
+            }
+
+            const problem = problems[currentQuestion];
+            document.getElementById('problem').textContent = problem.text + ' = ?';
+            document.getElementById('question').textContent = currentQuestion + 1;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+            document.getElementById('feedback').textContent = '';
+            currentAnswer = problem.answer;
+        }
+
+        function submitAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = 'Please enter a number!';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+
+            if (userAnswer === currentAnswer) {
+                correctAnswers++;
+                document.getElementById('correct').textContent = correctAnswers;
+                feedback.textContent = '✓ Correct!';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `✗ Wrong! Answer was ${currentAnswer}`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            currentQuestion++;
+            
+            setTimeout(() => {
+                showNextProblem();
+            }, 800);
+        }
+
+        function updateTimer() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').textContent = elapsed.toFixed(1);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+            const avgTime = (totalTime / 10).toFixed(1);
+
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('finalCorrect').textContent = correctAnswers;
+            document.getElementById('finalTime').textContent = totalTime;
+            document.getElementById('avgTime').textContent = avgTime;
+        }
+    </script>
+</body>
+</html>

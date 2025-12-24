@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .hangman-display {
+            margin-bottom: 30px;
+        }
+
+        .hangman-svg {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .lives-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .word-display {
+            font-size: 3em;
+            font-weight: bold;
+            letter-spacing: 0.3em;
+            color: #333;
+            margin-bottom: 30px;
+            font-family: monospace;
+        }
+
+        .category {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .alphabet {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .letter-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .letter-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .letter-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .letter-btn.correct {
+            background: linear-gradient(135deg, #6aaa64 0%, #5a9a54 100%);
+        }
+
+        .letter-btn.incorrect {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .win {
+            color: #28a745;
+        }
+
+        .lose {
+            color: #dc3545;
+        }
+
+        .hint-btn {
+            padding: 10px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint-display {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+            min-height: 30px;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .word-display {
+                font-size: 2em;
+                letter-spacing: 0.2em;
+            }
+
+            .letter-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1em;
+            }
+
+            .hangman-svg {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Hangman</h1>
+        <p class="subtitle">Guess the word before you run out of lives!</p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Played</div>
+                <div class="stat-value" id="played">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="lives-display" id="livesDisplay">❤️ Lives: 6</div>
+
+        <div class="hangman-display">
+            <svg class="hangman-svg" viewBox="0 0 200 250">
+                <!-- Base -->
+                <line x1="10" y1="230" x2="150" y2="230" stroke="#333" stroke-width="4"/>
+                <!-- Pole -->
+                <line x1="50" y1="230" x2="50" y2="20" stroke="#333" stroke-width="4"/>
+                <!-- Top -->
+                <line x1="50" y1="20" x2="130" y2="20" stroke="#333" stroke-width="4"/>
+                <!-- Rope -->
+                <line x1="130" y1="20" x2="130" y2="50" stroke="#333" stroke-width="2"/>
+                
+                <!-- Head -->
+                <circle id="head" cx="130" cy="70" r="20" stroke="#dc3545" stroke-width="3" fill="none" style="display: none;"/>
+                <!-- Body -->
+                <line id="body" x1="130" y1="90" x2="130" y2="150" stroke="#dc3545" stroke-width="3" style="display: none;"/>
+                <!-- Left Arm -->
+                <line id="leftArm" x1="130" y1="110" x2="100" y2="130" stroke="#dc3545" stroke-width="3" style="display: none;"/>
+                <!-- Right Arm -->
+                <line id="rightArm" x1="130" y1="110" x2="160" y2="130" stroke="#dc3545" stroke-width="3" style="display: none;"/>
+                <!-- Left Leg -->
+                <line id="leftLeg" x1="130" y1="150" x2="110" y2="190" stroke="#dc3545" stroke-width="3" style="display: none;"/>
+                <!-- Right Leg -->
+                <line id="rightLeg" x1="130" y1="150" x2="150" y2="190" stroke="#dc3545" stroke-width="3" style="display: none;"/>
+            </svg>
+        </div>
+
+        <div class="category" id="category"></div>
+        
+        <div class="hint-display" id="hintDisplay"></div>
+        <button class="hint-btn" id="hintBtn">💡 Get Hint (1 available)</button>
+
+        <div class="word-display" id="wordDisplay"></div>
+
+        <div class="alphabet" id="alphabet"></div>
+
+        <div class="message" id="message"></div>
+
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+        const words = [
+            { word: 'JAVASCRIPT', category: 'Programming', hint: 'Popular web programming language' },
+            { word: 'ELEPHANT', category: 'Animals', hint: 'Largest land animal' },
+            { word: 'GUITAR', category: 'Music', hint: 'Stringed instrument' },
+            { word: 'PIZZA', category: 'Food', hint: 'Italian dish with cheese and toppings' },
+            { word: 'MOUNTAIN', category: 'Nature', hint: 'Very tall landform' },
+            { word: 'BASKETBALL', category: 'Sports', hint: 'Game played with hoops' },
+            { word: 'COMPUTER', category: 'Technology', hint: 'Electronic device for processing data' },
+            { word: 'RAINBOW', category: 'Nature', hint: 'Colorful arc in the sky after rain' },
+            { word: 'CHOCOLATE', category: 'Food', hint: 'Sweet treat made from cocoa' },
+            { word: 'TELEPHONE', category: 'Technology', hint: 'Device for voice communication' },
+            { word: 'BUTTERFLY', category: 'Animals', hint: 'Insect with colorful wings' },
+            { word: 'PYRAMID', category: 'Architecture', hint: 'Ancient Egyptian structure' },
+            { word: 'TORNADO', category: 'Weather', hint: 'Rotating column of air' },
+            { word: 'DINOSAUR', category: 'History', hint: 'Extinct prehistoric creature' },
+            { word: 'WATERFALL', category: 'Nature', hint: 'Water falling from a height' },
+            { word: 'PAINTING', category: 'Art', hint: 'Artwork made with colors' },
+            { word: 'SUBMARINE', category: 'Vehicles', hint: 'Underwater vessel' },
+            { word: 'VOLCANO', category: 'Nature', hint: 'Mountain that erupts lava' },
+            { word: 'CALENDAR', category: 'Time', hint: 'Shows days and months' },
+            { word: 'PENGUIN', category: 'Animals', hint: 'Flightless bird from Antarctica' },
+            { word: 'TREASURE', category: 'Adventure', hint: 'Hidden valuable items' },
+            { word: 'BLANKET', category: 'Home', hint: 'Keeps you warm in bed' },
+            { word: 'FIREWORKS', category: 'Celebration', hint: 'Colorful explosions in the sky' },
+            { word: 'BACKPACK', category: 'School', hint: 'Bag carried on shoulders' },
+            { word: 'SANDWICH', category: 'Food', hint: 'Meal between two bread slices' },
+            { word: 'DIAMOND', category: 'Gems', hint: 'Precious clear stone' },
+            { word: 'HOSPITAL', category: 'Places', hint: 'Where doctors treat patients' },
+            { word: 'KEYBOARD', category: 'Technology', hint: 'Input device with keys' },
+            { word: 'UMBRELLA', category: 'Objects', hint: 'Protects from rain' },
+            { word: 'DOLPHIN', category: 'Animals', hint: 'Intelligent marine mammal' }
+        ];
+
+        const bodyParts = ['head', 'body', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'];
+
+        let currentWord = '';
+        let category = '';
+        let hint = '';
+        let guessedLetters = new Set();
+        let wrongGuesses = 0;
+        let maxWrong = 6;
+        let gameOver = false;
+        let hintUsed = false;
+
+        let played = 0;
+        let wins = 0;
+        let streak = 0;
+
+        function initGame() {
+            const wordData = words[Math.floor(Math.random() * words.length)];
+            currentWord = wordData.word;
+            category = wordData.category;
+            hint = wordData.hint;
+            guessedLetters = new Set();
+            wrongGuesses = 0;
+            gameOver = false;
+            hintUsed = false;
+
+            document.getElementById('category').textContent = `Category: ${category}`;
+            document.getElementById('hintDisplay').textContent = '';
+            document.getElementById('hintBtn').textContent = '💡 Get Hint (1 available)';
+            document.getElementById('hintBtn').disabled = false;
+            document.getElementById('message').textContent = '';
+            document.getElementById('playAgainBtn').style.display = 'none';
+
+            // Hide all body parts
+            bodyParts.forEach(part => {
+                document.getElementById(part).style.display = 'none';
+            });
+
+            updateDisplay();
+            renderAlphabet();
+        }
+
+        function renderAlphabet() {
+            const alphabet = document.getElementById('alphabet');
+            alphabet.innerHTML = '';
+
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.textContent = letter;
+                btn.disabled = guessedLetters.has(letter) || gameOver;
+
+                if (guessedLetters.has(letter)) {
+                    if (currentWord.includes(letter)) {
+                        btn.classList.add('correct');
+                    } else {
+                        btn.classList.add('incorrect');
+                    }
+                }
+
+                btn.addEventListener('click', () => guessLetter(letter));
+                alphabet.appendChild(btn);
+            }
+        }
+
+        function guessLetter(letter) {
+            if (gameOver || guessedLetters.has(letter)) return;
+
+            guessedLetters.add(letter);
+
+            if (!currentWord.includes(letter)) {
+                wrongGuesses++;
+                if (wrongGuesses <= bodyParts.length) {
+                    document.getElementById(bodyParts[wrongGuesses - 1]).style.display = 'block';
+                }
+            }
+
+            updateDisplay();
+            renderAlphabet();
+            checkGameOver();
+        }
+
+        function updateDisplay() {
+            // Update word display
+            const displayWord = currentWord
+                .split('')
+                .map(letter => guessedLetters.has(letter) ? letter : '_')
+                .join(' ');
+            
+            document.getElementById('wordDisplay').textContent = displayWord;
+
+            // Update lives
+            const livesRemaining = maxWrong - wrongGuesses;
+            const hearts = '❤️'.repeat(livesRemaining) + '🖤'.repeat(wrongGuesses);
+            document.getElementById('livesDisplay').innerHTML = `Lives: ${hearts}`;
+        }
+
+        function showHint() {
+            if (!hintUsed && !gameOver) {
+                hintUsed = true;
+                document.getElementById('hintDisplay').textContent = `Hint: ${hint}`;
+                document.getElementById('hintBtn').disabled = true;
+                document.getElementById('hintBtn').textContent = '💡 Hint Used';
+            }
+        }
+
+        function checkGameOver() {
+            const isWordComplete = currentWord.split('').every(letter => guessedLetters.has(letter));
+
+            if (isWordComplete) {
+                gameOver = true;
+                played++;
+                wins++;
+                streak++;
+                updateStats();
+                document.getElementById('message').innerHTML = '🎉 You Win!';
+                document.getElementById('message').className = 'message win';
+                document.getElementById('playAgainBtn').style.display = 'block';
+            } else if (wrongGuesses >= maxWrong) {
+                gameOver = true;
+                played++;
+                streak = 0;
+                updateStats();
+                document.getElementById('message').innerHTML = `💀 Game Over! The word was: ${currentWord}`;
+                document.getElementById('message').className = 'message lose';
+                document.getElementById('playAgainBtn').style.display = 'block';
+                renderAlphabet();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('played').textContent = played;
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            
+            const letter = e.key.toUpperCase();
+            if (/^[A-Z]$/.test(letter)) {
+                guessLetter(letter);
+            }
+        });
+
+        document.getElementById('hintBtn').addEventListener('click', showHint);
+        document.getElementById('playAgainBtn').addEventListener('click', initGame);
+
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>

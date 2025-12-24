@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip Streak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .goal {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .streak {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            background: #FFA07A;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5em;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: flip 0.6s ease;
+        }
+
+        @keyframes flip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(90deg); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 20px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .heads-btn {
+            background: #4ECDC4;
+            color: white;
+        }
+
+        .tails-btn {
+            background: #FFA07A;
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .history {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .history-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+        }
+
+        .history-item.correct {
+            background: #28a745;
+        }
+
+        .history-item.incorrect {
+            background: #ff4757;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .failure {
+            color: #ff4757;
+        }
+
+        .win-message {
+            display: none;
+            padding: 30px;
+            background: #d4edda;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .win-message h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪙 Coin Flip Streak</h1>
+        <p class="goal">Get 5 correct predictions in a row!</p>
+
+        <div class="streak">Streak: <span id="streak">0</span>/5</div>
+
+        <div class="coin" id="coin">🪙</div>
+
+        <div class="buttons">
+            <button class="heads-btn" onclick="predict('heads')" id="headsBtn">
+                👤 HEADS
+            </button>
+            <button class="tails-btn" onclick="predict('tails')" id="tailsBtn">
+                🔢 TAILS
+            </button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="history" id="history"></div>
+
+        <div class="win-message" id="winMessage">
+            <h2>🎉 YOU WIN!</h2>
+            <p style="font-size: 1.2em; margin-bottom: 15px;">
+                You got 5 correct predictions in a row!
+            </p>
+            <button onclick="location.reload()" style="background: #667eea; color: white;">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let streak = 0;
+        let isFlipping = false;
+
+        function predict(choice) {
+            if (isFlipping) return;
+            
+            isFlipping = true;
+            document.getElementById('headsBtn').disabled = true;
+            document.getElementById('tailsBtn').disabled = true;
+
+            // Animate coin
+            const coin = document.getElementById('coin');
+            coin.style.animation = 'none';
+            setTimeout(() => {
+                coin.style.animation = 'flip 0.6s ease';
+            }, 10);
+
+            setTimeout(() => {
+                // Random result
+                const result = Math.random() < 0.5 ? 'heads' : 'tails';
+                
+                // Show result
+                coin.textContent = result === 'heads' ? '👤' : '🔢';
+
+                const resultEl = document.getElementById('result');
+                const correct = choice === result;
+
+                if (correct) {
+                    streak++;
+                    resultEl.textContent = '✓ Correct!';
+                    resultEl.className = 'result success';
+                    addToHistory(true);
+                    
+                    if (streak >= 5) {
+                        win();
+                    }
+                } else {
+                    resultEl.textContent = `✗ Wrong! It was ${result}`;
+                    resultEl.className = 'result failure';
+                    addToHistory(false);
+                    streak = 0;
+                }
+
+                document.getElementById('streak').textContent = streak;
+
+                setTimeout(() => {
+                    resultEl.textContent = '';
+                    coin.textContent = '🪙';
+                    document.getElementById('headsBtn').disabled = false;
+                    document.getElementById('tailsBtn').disabled = false;
+                    isFlipping = false;
+                }, 1500);
+            }, 600);
+        }
+
+        function addToHistory(correct) {
+            const history = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = `history-item ${correct ? 'correct' : 'incorrect'}`;
+            item.textContent = correct ? '✓' : '✗';
+            history.appendChild(item);
+        }
+
+        function win() {
+            document.querySelector('.buttons').style.display = 'none';
+            document.getElementById('winMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
