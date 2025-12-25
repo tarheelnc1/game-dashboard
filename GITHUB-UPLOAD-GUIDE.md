@@ -152,6 +152,31 @@ filename: 'lucky-number-game.html'
 ```
 Make sure your actual file is named exactly: `lucky-number-game.html`
 
+### 🔐 SECURITY WARNING - Change Admin Password!
+Before uploading to GitHub (especially public repos):
+
+**Default Admin Credentials:**
+- Username: `admin`
+- Password: `12345bw`
+
+**⚠️ ANYONE can see these in your code!**
+
+**To change:**
+1. Open `admin-dashboard-enhanced.html`
+2. Find lines (near top of script):
+   ```javascript
+   const ADMIN_USERNAME = 'admin';
+   const ADMIN_PASSWORD = '12345bw';
+   ```
+3. Change to secure credentials:
+   ```javascript
+   const ADMIN_USERNAME = 'youradmin';
+   const ADMIN_PASSWORD = 'YourSecurePassword123!';
+   ```
+4. Save and upload
+
+**Better yet:** For public sites, implement proper server-side authentication!
+
 ### Folder Structure Matters
 The dashboard expects games in `./games/` by default:
 ```javascript
