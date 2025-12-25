@@ -262,6 +262,12 @@
         .badge-difficulty-medium { background: #fff3cd; color: #856404; }
         .badge-difficulty-hard { background: #f8d7da; color: #721c24; }
 
+        .badge-puzzle { background: #e3f2fd; color: #1976d2; }
+        .badge-action { background: #fff3e0; color: #e65100; }
+        .badge-memory { background: #f3e5f5; color: #6a1b9a; }
+        .badge-strategy { background: #e8f5e9; color: #2e7d32; }
+        .badge-quiz { background: #fff9c4; color: #f57f17; }
+
         .game-actions {
             display: flex;
             gap: 10px;
@@ -428,6 +434,7 @@
         <div class="section">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('games')">🎮 Game Management</button>
+                <button class="tab" onclick="switchTab('challenge')">🏁 Challenge Mode</button>
                 <button class="tab" onclick="switchTab('leaderboards')">🏆 Leaderboards</button>
                 <button class="tab" onclick="switchTab('users')">👥 User Management</button>
             </div>
@@ -443,6 +450,67 @@
                 </div>
                 <div id="gamesContent">
                     <!-- Game categories will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Challenge Mode Tab -->
+            <div id="challengeTab" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="margin: 0;">Challenge Mode Configuration</h2>
+                        <p style="color: #666; margin-top: 5px;">Create a sequential game challenge for users to complete</p>
+                    </div>
+                    <label class="toggle-switch" style="width: 80px; height: 40px;">
+                        <input type="checkbox" id="challengeModeEnabled" onchange="toggleChallengeMode()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div id="challengeEnabledSection" style="display: none;">
+                    <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">⚙️ Challenge Settings</h3>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label style="font-weight: 600; min-width: 150px;">Enable Timer:</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="challengeTimer" onchange="saveChallengeSettings()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span style="color: #666; font-size: 0.9em;">Track total time to complete all games</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label style="font-weight: 600; min-width: 150px;">Sequential Only:</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="challengeSequential" checked onchange="saveChallengeSettings()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span style="color: #666; font-size: 0.9em;">Users must complete games in order</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🎮 Challenge Games</h3>
+                        <p style="color: #666; margin-bottom: 15px;">Drag to reorder • Click to remove from challenge</p>
+                        <div id="challengeGamesList" style="background: #f8f9fa; padding: 20px; border-radius: 10px; min-height: 200px;">
+                            <!-- Challenge games will be listed here -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">➕ Add Games to Challenge</h3>
+                        <div id="availableGamesList" style="display: grid; gap: 10px;">
+                            <!-- Available games will be listed here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="challengeDisabledSection">
+                    <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">Challenge Mode is Disabled</h3>
+                        <p style="color: #666; margin-bottom: 20px;">Enable challenge mode to create a sequential game completion challenge for users</p>
+                        <p style="color: #999; font-size: 0.9em;">When enabled, users will see both the game browser and challenge mode options</p>
+                    </div>
                 </div>
             </div>
 
@@ -577,6 +645,7 @@
             populateGameFilter();
             renderLeaderboards();
             renderUsers();
+            loadChallengeMode();
         }
 
         // Tab switching
@@ -926,6 +995,153 @@
             if (confirm('Logout from admin panel?')) {
                 window.location.href = 'game-dashboard-enhanced.html';
             }
+        }
+
+        // Challenge Mode Functions
+        function loadChallengeMode() {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            
+            // Set toggle state
+            document.getElementById('challengeModeEnabled').checked = challengeConfig.enabled || false;
+            document.getElementById('challengeTimer').checked = challengeConfig.timer || false;
+            document.getElementById('challengeSequential').checked = challengeConfig.sequential !== false;
+
+            // Show/hide sections
+            if (challengeConfig.enabled) {
+                document.getElementById('challengeEnabledSection').style.display = 'block';
+                document.getElementById('challengeDisabledSection').style.display = 'none';
+                renderChallengeGames();
+            } else {
+                document.getElementById('challengeEnabledSection').style.display = 'none';
+                document.getElementById('challengeDisabledSection').style.display = 'block';
+            }
+        }
+
+        function toggleChallengeMode() {
+            const enabled = document.getElementById('challengeModeEnabled').checked;
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            
+            challengeConfig.enabled = enabled;
+            
+            if (enabled && (!challengeConfig.games || challengeConfig.games.length === 0)) {
+                // Initialize with first 5 games as default
+                challengeConfig.games = GAME_LIBRARY.slice(0, 5).map(g => g.id);
+            }
+            
+            localStorage.setItem('challengeConfig', JSON.stringify(challengeConfig));
+            loadChallengeMode();
+        }
+
+        function saveChallengeSettings() {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            
+            challengeConfig.timer = document.getElementById('challengeTimer').checked;
+            challengeConfig.sequential = document.getElementById('challengeSequential').checked;
+            
+            localStorage.setItem('challengeConfig', JSON.stringify(challengeConfig));
+        }
+
+        function renderChallengeGames() {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            const challengeGames = challengeConfig.games || [];
+            
+            const challengeList = document.getElementById('challengeGamesList');
+            const availableList = document.getElementById('availableGamesList');
+
+            // Render challenge games
+            if (challengeGames.length === 0) {
+                challengeList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #999;">
+                        <p>No games in challenge yet</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Add games from the list below</p>
+                    </div>
+                `;
+            } else {
+                challengeList.innerHTML = challengeGames.map((gameId, index) => {
+                    const game = GAME_LIBRARY.find(g => g.id === gameId);
+                    if (!game) return '';
+                    
+                    return `
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #667eea;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                    ${index + 1}
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; color: #2c3e50;">${game.title}</h4>
+                                    <p style="margin: 5px 0 0; color: #666; font-size: 0.9em;">${game.description}</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                ${index > 0 ? `<button class="btn btn-secondary" style="padding: 8px 15px; font-size: 0.9em;" onclick="moveChallengeGame(${index}, 'up')">↑</button>` : ''}
+                                ${index < challengeGames.length - 1 ? `<button class="btn btn-secondary" style="padding: 8px 15px; font-size: 0.9em;" onclick="moveChallengeGame(${index}, 'down')">↓</button>` : ''}
+                                <button class="btn btn-danger" style="padding: 8px 15px; font-size: 0.9em;" onclick="removeFromChallenge('${gameId}')">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render available games
+            const availableGames = GAME_LIBRARY.filter(g => !challengeGames.includes(g.id));
+            
+            if (availableGames.length === 0) {
+                availableList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; color: #999;">
+                        All games have been added to the challenge!
+                    </div>
+                `;
+            } else {
+                availableList.innerHTML = availableGames.map(game => `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0; color: #2c3e50;">${game.title}</h4>
+                            <p style="margin: 5px 0 0; color: #666; font-size: 0.9em;">${game.description}</p>
+                            <div style="margin-top: 5px;">
+                                <span class="badge badge-${game.category}" style="font-size: 0.75em;">${game.category}</span>
+                                <span class="badge badge-difficulty-${game.difficulty}" style="font-size: 0.75em;">${game.difficulty}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="padding: 10px 20px;" onclick="addToChallenge('${game.id}')">+ Add</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function addToChallenge(gameId) {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            if (!challengeConfig.games) challengeConfig.games = [];
+            
+            challengeConfig.games.push(gameId);
+            localStorage.setItem('challengeConfig', JSON.stringify(challengeConfig));
+            
+            renderChallengeGames();
+        }
+
+        function removeFromChallenge(gameId) {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            if (!challengeConfig.games) return;
+            
+            challengeConfig.games = challengeConfig.games.filter(id => id !== gameId);
+            localStorage.setItem('challengeConfig', JSON.stringify(challengeConfig));
+            
+            renderChallengeGames();
+        }
+
+        function moveChallengeGame(index, direction) {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            if (!challengeConfig.games) return;
+            
+            const games = challengeConfig.games;
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            
+            if (newIndex < 0 || newIndex >= games.length) return;
+            
+            // Swap
+            [games[index], games[newIndex]] = [games[newIndex], games[index]];
+            
+            localStorage.setItem('challengeConfig', JSON.stringify(challengeConfig));
+            renderChallengeGames();
         }
     </script>
 </body>
