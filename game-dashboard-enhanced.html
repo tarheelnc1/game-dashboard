@@ -615,96 +615,239 @@
         // This is the master list of all available games
         // Add new games here to make them available in the browser
         const GAME_LIBRARY = [
-            // Card & Probability Games
-            {
-                id: 'high-low-card',
-                title: 'High-Low Card Game',
-                description: 'Guess if the next card will be higher or lower. Build a winning streak!',
-                filename: 'high-low-card.html',
-                category: 'strategy',
-                difficulty: 'easy'
-            },
-            {
-                id: 'coin-flip-streak',
-                title: 'Coin Flip Streak',
-                description: 'Predict coin flips and build the longest streak possible.',
-                filename: 'coin-flip-streak.html',
-                category: 'strategy',
-                difficulty: 'easy'
-            },
-            {
-                id: 'dice-roll-challenge',
-                title: 'Dice Roll Challenge',
-                description: 'Roll the dice and beat the target score in this luck-based game.',
-                filename: 'dice-roll-challenge.html',
-                category: 'action',
-                difficulty: 'easy'
-            },
-            
-            // Memory Games
-            {
-                id: 'color-memory',
-                title: 'Color Memory Game',
-                description: 'Remember and repeat increasingly complex color sequences.',
-                filename: 'color-memory.html',
-                category: 'memory',
-                difficulty: 'medium'
-            },
-            {
-                id: 'pattern-match',
-                title: 'Pattern Match',
-                description: 'Match patterns and test your visual memory skills.',
-                filename: 'pattern-match.html',
-                category: 'memory',
-                difficulty: 'medium'
-            },
-            
-            // Speed & Reaction Games
-            {
-                id: 'reaction-time',
-                title: 'Reaction Time Test',
-                description: 'Test your reflexes with this lightning-fast reaction game.',
-                filename: 'reaction-time.html',
-                category: 'action',
-                difficulty: 'easy'
-            },
-            {
-                id: 'speed-clicker',
-                title: 'Speed Clicker',
-                description: 'Click as fast as you can and beat your best score!',
-                filename: 'speed-clicker.html',
-                category: 'action',
-                difficulty: 'easy'
-            },
-            
-            // Puzzle & Word Games
-            {
-                id: 'word-scramble',
-                title: 'Word Scramble',
-                description: 'Unscramble letters to form words before time runs out.',
-                filename: 'word-scramble.html',
-                category: 'puzzle',
-                difficulty: 'medium'
-            },
-            {
-                id: 'math-sprint',
-                title: 'Math Sprint',
-                description: 'Solve math problems quickly to beat the clock!',
-                filename: 'math-sprint.html',
-                category: 'puzzle',
-                difficulty: 'medium'
-            },
-            
-            // Quiz Games
-            {
-                id: 'true-false-quiz',
-                title: 'True or False Quiz',
-                description: 'Answer true or false questions and test your knowledge.',
-                filename: 'true-false-quiz.html',
-                category: 'quiz',
-                difficulty: 'easy'
-            }
-        ];
+    {
+        id: 'speed-clicker',
+        title: 'Speed Clicker',
+        description: 'A fun and engaging game!',
+        filename: 'speed-clicker.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'true-false-quiz',
+        title: 'True False Quiz',
+        description: 'A fun and engaging game!',
+        filename: 'true-false-quiz.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'wordle',
+        title: 'Wordle',
+        description: 'A fun and engaging game!',
+        filename: 'wordle.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'word-scramble',
+        title: 'Word Scramble',
+        description: 'A fun and engaging game!',
+        filename: 'word-scramble.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'word-search',
+        title: 'Word Search',
+        description: 'A fun and engaging game!',
+        filename: 'word-search.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'basketball-free-throw',
+        title: 'Basketball Free Throw',
+        description: 'A fun and engaging game!',
+        filename: 'basketball-free-throw.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'coin-flip-streak',
+        title: 'Coin Flip Streak',
+        description: 'A fun and engaging game!',
+        filename: 'coin-flip-streak.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'color-match-game',
+        title: 'Color Match Game',
+        description: 'A fun and engaging game!',
+        filename: 'color-match-game.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'color-memory',
+        title: 'Color Memory',
+        description: 'A fun and engaging game!',
+        filename: 'color-memory.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'dice-roll-challenge',
+        title: 'Dice Roll Challenge',
+        description: 'A fun and engaging game!',
+        filename: 'dice-roll-challenge.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'hangman',
+        title: 'Hangman',
+        description: 'A fun and engaging game!',
+        filename: 'hangman.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'higher-or-lower',
+        title: 'Higher Or Lower',
+        description: 'A fun and engaging game!',
+        filename: 'higher-or-lower.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'high-low-card',
+        title: 'High Low Card',
+        description: 'A fun and engaging game!',
+        filename: 'high-low-card.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'left-or-right-door',
+        title: 'Left Or Right Door',
+        description: 'A fun and engaging game!',
+        filename: 'left-or-right-door.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'light-switch',
+        title: 'Light Switch',
+        description: 'A fun and engaging game!',
+        filename: 'light-switch.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'math-sprint',
+        title: 'Math Sprint',
+        description: 'A fun and engaging game!',
+        filename: 'math-sprint.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'memory-match-game',
+        title: 'Memory Match Game',
+        description: 'A fun and engaging game!',
+        filename: 'memory-match-game.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'minesweeper',
+        title: 'Minesweeper',
+        description: 'A fun and engaging game!',
+        filename: 'minesweeper.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'mystery-box-color',
+        title: 'Mystery Box Color',
+        description: 'A fun and engaging game!',
+        filename: 'mystery-box-color.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'number-guess-game',
+        title: 'Number Guess Game',
+        description: 'A fun and engaging game!',
+        filename: 'number-guess-game.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'odd-or-even',
+        title: 'Odd Or Even',
+        description: 'A fun and engaging game!',
+        filename: 'odd-or-even.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'pattern-match',
+        title: 'Pattern Match',
+        description: 'A fun and engaging game!',
+        filename: 'pattern-match.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'penalty-kick',
+        title: 'Penalty Kick',
+        description: 'A fun and engaging game!',
+        filename: 'penalty-kick.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'prize-wheel-game',
+        title: 'Prize Wheel Game',
+        description: 'A fun and engaging game!',
+        filename: 'prize-wheel-game.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'quick-quiz-game',
+        title: 'Quick Quiz Game',
+        description: 'A fun and engaging game!',
+        filename: 'quick-quiz-game.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'race-finish',
+        title: 'Race Finish',
+        description: 'A fun and engaging game!',
+        filename: 'race-finish.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'reaction-time',
+        title: 'Reaction Time',
+        description: 'A fun and engaging game!',
+        filename: 'reaction-time.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'red-or-black',
+        title: 'Red Or Black',
+        description: 'A fun and engaging game!',
+        filename: 'red-or-black.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    },
+    {
+        id: 'rocket-launch',
+        title: 'Rocket Launch',
+        description: 'A fun and engaging game!',
+        filename: 'rocket-launch.html',
+        category: 'puzzle',
+        difficulty: 'easy'
+    }
+];
 
         // Configuration
         const GAME_FILES_PATH = './games/'; // Path to game files
