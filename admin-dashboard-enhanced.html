@@ -18,6 +18,65 @@
             padding: 20px;
         }
 
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login Screen Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -401,12 +460,36 @@
 </head>
 <body>
     <div class="container">
+        <!-- Admin Login Screen -->
+        <div id="adminLoginScreen" class="login-container">
+            <div class="login-box">
+                <h1>🔐 Admin Login</h1>
+                <p>Enter admin credentials to continue</p>
+                <form onsubmit="event.preventDefault(); handleAdminLogin();">
+                    <div class="form-group">
+                        <label for="adminUsername">Username</label>
+                        <input type="text" id="adminUsername" required autofocus autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                <p style="margin-top: 20px; text-align: center; color: #999; font-size: 0.9em;">
+                    <a href="game-dashboard-enhanced.html" style="color: #667eea; text-decoration: none;">← Back to Game Dashboard</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard (Hidden until logged in) -->
+        <div id="adminDashboard" class="hidden">
         <!-- Header -->
         <div class="header">
             <h1>⚙️ Admin Dashboard</h1>
             <div class="nav-buttons">
                 <button class="btn btn-success" onclick="goToGameDashboard()">🎮 Game Dashboard</button>
-                <button class="btn btn-danger" onclick="logout()">Logout</button>
+                <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
             </div>
         </div>
 
@@ -539,9 +622,66 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div> <!-- End adminDashboard -->
+    </div> <!-- End container -->
 
     <script>
+        // Admin Credentials
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = '12345bw';
+
+        // Check admin login status on load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAuth();
+        });
+
+        function checkAdminAuth() {
+            const adminSession = sessionStorage.getItem('adminAuthenticated');
+            
+            if (adminSession === 'true') {
+                showAdminDashboard();
+            } else {
+                showAdminLogin();
+            }
+        }
+
+        function handleAdminLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                // Successful login
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                showAdminDashboard();
+            } else {
+                // Failed login
+                alert('❌ Invalid credentials. Please try again.');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        function showAdminLogin() {
+            document.getElementById('adminLoginScreen').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('adminLoginScreen').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            loadDashboard();
+        }
+
+        function logoutAdmin() {
+            if (confirm('Logout from admin panel?')) {
+                sessionStorage.removeItem('adminAuthenticated');
+                showAdminLogin();
+                // Clear form
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
         // Load game library from the game dashboard
         const GAME_LIBRARY = [
             {
@@ -633,11 +773,6 @@
                 difficulty: 'easy'
             }
         ];
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDashboard();
-        });
 
         function loadDashboard() {
             updateStats();
@@ -989,12 +1124,6 @@
         // Navigation
         function goToGameDashboard() {
             window.location.href = 'game-dashboard-enhanced.html';
-        }
-
-        function logout() {
-            if (confirm('Logout from admin panel?')) {
-                window.location.href = 'game-dashboard-enhanced.html';
-            }
         }
 
         // Challenge Mode Functions
