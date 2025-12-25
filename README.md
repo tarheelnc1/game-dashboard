@@ -45,7 +45,11 @@ Simply open `game-dashboard-enhanced.html` in your web browser. No build process
 - Play and compete on leaderboards!
 
 ### 4. Admin Access
-Open `admin-dashboard-enhanced.html` to access admin controls
+Open `admin-dashboard-enhanced.html` and login with:
+- **Username:** `admin`
+- **Password:** `12345bw`
+
+⚠️ **Change default password in production!**
 
 ## 📁 Project Structure
 
@@ -224,8 +228,26 @@ Detailed guides are available in the `docs/` folder:
 
 - **[Enhanced Game Browser Guide](docs/ENHANCED-GAME-BROWSER-GUIDE.md)** - Complete system overview
 - **[Admin & Leaderboard Guide](docs/ADMIN-LEADERBOARD-GUIDE.md)** - Admin features and leaderboards
+- **[Challenge Mode Guide](docs/CHALLENGE-MODE-GUIDE.md)** - Progressive game challenges
+- **[Admin Authentication Guide](docs/ADMIN-AUTHENTICATION-GUIDE.md)** - Security and login system
 - **[Score Tracking Reference](docs/SCORE-TRACKING-QUICK-REFERENCE.md)** - Add scores to your games
 - **[Quick Add Game Guide](docs/QUICK-ADD-GAME-GUIDE.md)** - Step-by-step game addition
+
+## 🔐 Admin Access
+
+The admin dashboard is protected with authentication.
+
+**Default Login Credentials:**
+- Username: `admin`
+- Password: `12345bw`
+
+⚠️ **Important:** Change the default password before deploying!
+
+See [Admin Authentication Guide](docs/ADMIN-AUTHENTICATION-GUIDE.md) for details on:
+- How to change credentials
+- Adding multiple admins
+- Security best practices
+- Troubleshooting
 
 ## 🤝 Contributing
 
@@ -239,6 +261,18 @@ Contributions are welcome! Here's how you can help:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🔒 Security Note
+
+The admin authentication provided is **basic** and suitable for local/internal use. For production deployments:
+
+- ⚠️ Change the default admin password immediately
+- ⚠️ Passwords are stored in plain text in the code (visible to anyone with file access)
+- ⚠️ For public-facing sites, implement server-side authentication
+- ⚠️ Use HTTPS in production
+- ⚠️ Consider implementing password hashing, rate limiting, and audit logging
+
+See [Admin Authentication Guide](docs/ADMIN-AUTHENTICATION-GUIDE.md) for more security information.
 
 ## 🙏 Credits
 
