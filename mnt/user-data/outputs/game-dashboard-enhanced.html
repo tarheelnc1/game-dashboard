@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dashboard - Enhanced</title>
+    <!-- Version: Enhanced-With-Browser-2024-12-24 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #ff3838;
+        }
+
+        .browse-games-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .browse-games-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Game Browser Screen */
+        .browser-header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .browser-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .browser-header p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .game-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .game-card.locked:hover {
+            transform: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .game-card.completed {
+            border: 3px solid #28a745;
+            position: relative;
+        }
+
+        .game-card.completed::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #28a745;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .game-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .game-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .game-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .game-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .game-difficulty {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .difficulty-easy { background: #28a745; color: white; }
+        .difficulty-medium { background: #ffc107; color: #333; }
+        .difficulty-hard { background: #ff4757; color: white; }
+
+        .play-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        /* Game Play Screen */
+        .game-play-screen {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-play-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .game-play-header h2 {
+            color: #667eea;
+        }
+
+        .game-frame-container {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .game-frame {
+            width: 100%;
+            height: 700px;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            background: white;
+        }
+
+        /* Leaderboard Styles */
+        .leaderboard-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+
+        .leaderboard-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .leaderboard-toggle {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .leaderboard-toggle:hover {
+            border-color: #667eea;
+            background: #e7f3ff;
+        }
+
+        .leaderboard-toggle.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .leaderboard-content {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .leaderboard-content.show {
+            display: block;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .leaderboard-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .leaderboard-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .leaderboard-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rank-1 { background: #f39c12; }
+        .rank-2 { background: #95a5a6; }
+        .rank-3 { background: #cd7f32; }
+        .rank-other { background: #667eea; }
+
+        .score-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .admin-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .no-results h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .no-results p {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>🎮 Game Portal</h1>
+            <p>Enter your username to continue</p>
+            <form onsubmit="event.preventDefault(); handleLogin();">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required autofocus>
+                </div>
+                <button type="submit" class="btn">Start Playing</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardScreen" class="dashboard hidden">
+        <div class="dashboard-header">
+            <div class="header-top">
+                <div>
+                    <h1>🎮 Game Dashboard</h1>
+                    <p style="color: #666; margin-top: 5px;">Welcome, <span id="displayName"></span>!</p>
+                </div>
+                <div class="user-info">
+                    <button class="browse-games-btn" onclick="showGameBrowser()">
+                        <span>🎯</span>
+                        <span>Browse All Games</span>
+                    </button>
+                    <button class="browse-games-btn" id="challengeModeBtn" onclick="showChallengeMode()" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); display: none;">
+                        <span>🏁</span>
+                        <span>Challenge Mode</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+            <p style="color: #666; margin-top: 15px;" id="dashboardSubtitle">
+                Use the dashboard below for progressive challenges, or browse all games for free play!
+            </p>
+        </div>
+
+        <div id="dashboardContent">
+            <p style="text-align: center; color: white; font-size: 1.2em;">
+                Configure games in the admin panel, or use "Browse All Games" to play any available game!
+            </p>
+        </div>
+    </div>
+
+    <!-- Game Browser Screen -->
+    <div id="browserScreen" class="dashboard hidden">
+        <div class="browser-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <h1>🎯 Game Browser</h1>
+                    <p>Explore and play all available games</p>
+                </div>
+                <button class="back-btn" onclick="backToDashboard()">← Back to Dashboard</button>
+            </div>
+
+            <div class="search-controls">
+                <input 
+                    type="text" 
+                    class="search-box" 
+                    id="gameSearch" 
+                    placeholder="🔍 Search games by name or description..."
+                    oninput="filterGames()">
+                
+                <div class="filter-group">
+                    <button class="filter-btn active" data-category="all" onclick="setCategory('all')">All</button>
+                    <button class="filter-btn" data-category="puzzle" onclick="setCategory('puzzle')">Puzzle</button>
+                    <button class="filter-btn" data-category="action" onclick="setCategory('action')">Action</button>
+                    <button class="filter-btn" data-category="memory" onclick="setCategory('memory')">Memory</button>
+                    <button class="filter-btn" data-category="strategy" onclick="setCategory('strategy')">Strategy</button>
+                    <button class="filter-btn" data-category="quiz" onclick="setCategory('quiz')">Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="browserGamesList" class="games-grid">
+            <!-- Games will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Challenge Mode Screen -->
+    <div id="challengeScreen" class="dashboard hidden">
+        <div class="dashboard-header">
+            <div class="header-top">
+                <div>
+                    <h1>🏁 Challenge Mode</h1>
+                    <p style="color: #666; margin-top: 5px;">Complete all games in sequence!</p>
+                </div>
+                <button class="back-btn" onclick="backToDashboard()">← Back to Dashboard</button>
+            </div>
+            
+            <div class="timer-display" id="challengeTimerDisplay" style="display: none;">
+                <div class="timer-label">Challenge Time</div>
+                <div class="timer-value" id="challengeTimer">0:00.0</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="challengeProgress" style="width: 0%;">
+                    <span id="challengeProgressText">0/0 Games</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="challengeGamesList" class="games-grid">
+            <!-- Challenge games will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Game Play Screen -->
+    <div id="gamePlayScreen" class="game-play-screen hidden">
+        <div class="game-play-header">
+            <h2 id="currentGameTitle">🎮 Game</h2>
+            <button class="back-btn" onclick="backFromGame()">← Back</button>
+        </div>
+        <div class="game-frame-container">
+            <iframe id="gameFrame" class="game-frame"></iframe>
+        </div>
+        
+        <!-- Complete Challenge Game Button -->
+        <div id="challengeCompleteSection" style="display: none; text-align: center; margin-top: 20px;">
+            <button onclick="completeChallengeGame()" style="padding: 15px 40px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer;">
+                ✓ Mark Complete & Continue Challenge
+            </button>
+        </div>
+        
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section">
+            <div class="leaderboard-toggle" onclick="toggleLeaderboard()">
+                <h3>
+                    <span>🏆 Leaderboard</span>
+                    <span style="font-size: 0.8em; font-weight: normal; margin-left: auto;">Click to view</span>
+                </h3>
+            </div>
+            <div id="leaderboardContent" class="leaderboard-content">
+                <!-- Leaderboard will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Link -->
+    <a href="admin-dashboard-enhanced.html" class="admin-link">
+        <span>⚙️</span>
+        <span>Admin</span>
+    </a>
+
+    <script>
+        // ============ GAME LIBRARY ============
+        // This is the master list of all available games
+        // Add new games here to make them available in the browser
+        const GAME_LIBRARY = [
+            // Card & Probability Games
+            {
+                id: 'high-low-card',
+                title: 'High-Low Card Game',
+                description: 'Guess if the next card will be higher or lower. Build a winning streak!',
+                filename: 'high-low-card.html',
+                category: 'strategy',
+                difficulty: 'easy'
+            },
+            {
+                id: 'coin-flip-streak',
+                title: 'Coin Flip Streak',
+                description: 'Predict coin flips and build the longest streak possible.',
+                filename: 'coin-flip-streak.html',
+                category: 'strategy',
+                difficulty: 'easy'
+            },
+            {
+                id: 'dice-roll-challenge',
+                title: 'Dice Roll Challenge',
+                description: 'Roll the dice and beat the target score in this luck-based game.',
+                filename: 'dice-roll-challenge.html',
+                category: 'action',
+                difficulty: 'easy'
+            },
+            
+            // Memory Games
+            {
+                id: 'color-memory',
+                title: 'Color Memory Game',
+                description: 'Remember and repeat increasingly complex color sequences.',
+                filename: 'color-memory.html',
+                category: 'memory',
+                difficulty: 'medium'
+            },
+            {
+                id: 'pattern-match',
+                title: 'Pattern Match',
+                description: 'Match patterns and test your visual memory skills.',
+                filename: 'pattern-match.html',
+                category: 'memory',
+                difficulty: 'medium'
+            },
+            
+            // Speed & Reaction Games
+            {
+                id: 'reaction-time',
+                title: 'Reaction Time Test',
+                description: 'Test your reflexes with this lightning-fast reaction game.',
+                filename: 'reaction-time.html',
+                category: 'action',
+                difficulty: 'easy'
+            },
+            {
+                id: 'speed-clicker',
+                title: 'Speed Clicker',
+                description: 'Click as fast as you can and beat your best score!',
+                filename: 'speed-clicker.html',
+                category: 'action',
+                difficulty: 'easy'
+            },
+            
+            // Puzzle & Word Games
+            {
+                id: 'word-scramble',
+                title: 'Word Scramble',
+                description: 'Unscramble letters to form words before time runs out.',
+                filename: 'word-scramble.html',
+                category: 'puzzle',
+                difficulty: 'medium'
+            },
+            {
+                id: 'math-sprint',
+                title: 'Math Sprint',
+                description: 'Solve math problems quickly to beat the clock!',
+                filename: 'math-sprint.html',
+                category: 'puzzle',
+                difficulty: 'medium'
+            },
+            
+            // Quiz Games
+            {
+                id: 'true-false-quiz',
+                title: 'True or False Quiz',
+                description: 'Answer true or false questions and test your knowledge.',
+                filename: 'true-false-quiz.html',
+                category: 'quiz',
+                difficulty: 'easy'
+            }
+        ];
+
+        // Configuration
+        const GAME_FILES_PATH = './games/'; // Path to game files
+        
+        // State
+        let currentUser = null;
+        let currentCategory = 'all';
+        let currentGameId = null;
+        let returnTo = 'dashboard'; // 'dashboard' or 'browser' or 'challenge'
+        let challengeTimer = null;
+        let challengeStartTime = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
+        });
+
+        // Login functions
+        function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+            login(username);
+        }
+
+        function checkLoginStatus() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                showDashboard();
+            }
+        }
+
+        function login(username) {
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (!users[username]) {
+                users[username] = {
+                    username: username,
+                    createdAt: new Date().toISOString(),
+                    challengeProgress: {
+                        completed: [],
+                        startTime: null,
+                        endTime: null
+                    }
+                };
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            currentUser = users[username];
+            
+            // Ensure challengeProgress exists
+            if (!currentUser.challengeProgress) {
+                currentUser.challengeProgress = {
+                    completed: [],
+                    startTime: null,
+                    endTime: null
+                };
+            }
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showDashboard();
+        }
+
+        function saveUserData() {
+            // Save to currentUser in localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Also update in users object
+            let users = JSON.parse(localStorage.getItem('users') || '{}');
+            users[currentUser.username] = currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showLogin();
+        }
+
+        // Screen navigation
+        function showLogin() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('browserScreen').classList.add('hidden');
+            document.getElementById('gamePlayScreen').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('browserScreen').classList.add('hidden');
+            document.getElementById('challengeScreen').classList.add('hidden');
+            document.getElementById('gamePlayScreen').classList.add('hidden');
+            
+            document.getElementById('displayName').textContent = currentUser.username;
+
+            // Check if challenge mode is enabled
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            if (challengeConfig.enabled) {
+                document.getElementById('challengeModeBtn').style.display = 'flex';
+                document.getElementById('dashboardSubtitle').textContent = 
+                    'Browse all games for free play, or take on the Challenge Mode!';
+            } else {
+                document.getElementById('challengeModeBtn').style.display = 'none';
+                document.getElementById('dashboardSubtitle').textContent = 
+                    'Browse all games for free play!';
+            }
+        }
+
+        function showGameBrowser() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('browserScreen').classList.remove('hidden');
+            document.getElementById('gamePlayScreen').classList.add('hidden');
+            
+            currentCategory = 'all';
+            renderGameBrowser();
+        }
+
+        function backToDashboard() {
+            showDashboard();
+        }
+
+        function backFromGame() {
+            if (returnTo === 'browser') {
+                showGameBrowser();
+            } else if (returnTo === 'challenge') {
+                showChallengeMode();
+            } else {
+                showDashboard();
+            }
+        }
+
+        // Challenge Mode Functions
+        function showChallengeMode() {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            
+            if (!challengeConfig.enabled) {
+                alert('Challenge mode is not currently enabled. Contact an administrator.');
+                return;
+            }
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('browserScreen').classList.add('hidden');
+            document.getElementById('challengeScreen').classList.remove('hidden');
+            document.getElementById('gamePlayScreen').classList.add('hidden');
+
+            renderChallengeMode();
+        }
+
+        function renderChallengeMode() {
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            const challengeGames = challengeConfig.games || [];
+            
+            if (!currentUser.challengeProgress) {
+                currentUser.challengeProgress = {
+                    completed: [],
+                    startTime: null,
+                    endTime: null
+                };
+            }
+
+            const completedCount = currentUser.challengeProgress.completed.length;
+            const totalCount = challengeGames.length;
+            const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+            // Update progress bar
+            document.getElementById('challengeProgress').style.width = progressPercent + '%';
+            document.getElementById('challengeProgressText').textContent = `${completedCount}/${totalCount} Games`;
+
+            // Show/hide timer
+            if (challengeConfig.timer) {
+                document.getElementById('challengeTimerDisplay').style.display = 'block';
+                
+                if (completedCount > 0 && completedCount < totalCount) {
+                    // In progress - show running timer
+                    if (!currentUser.challengeProgress.startTime) {
+                        currentUser.challengeProgress.startTime = Date.now();
+                        saveUserData();
+                    }
+                    startChallengeTimer();
+                } else if (completedCount === totalCount && currentUser.challengeProgress.endTime) {
+                    // Completed - show final time
+                    const finalTime = currentUser.challengeProgress.endTime - currentUser.challengeProgress.startTime;
+                    document.getElementById('challengeTimer').textContent = formatChallengeTime(finalTime);
+                    if (challengeTimer) {
+                        clearInterval(challengeTimer);
+                        challengeTimer = null;
+                    }
+                } else {
+                    document.getElementById('challengeTimer').textContent = '0:00.0';
+                }
+            } else {
+                document.getElementById('challengeTimerDisplay').style.display = 'none';
+            }
+
+            // Render games
+            const container = document.getElementById('challengeGamesList');
+            
+            if (challengeGames.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border-radius: 20px;">
+                        <h3 style="color: #667eea;">No Challenge Games</h3>
+                        <p style="color: #666; margin-top: 10px;">An administrator needs to configure the challenge games.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = challengeGames.map((gameId, index) => {
+                const game = GAME_LIBRARY.find(g => g.id === gameId);
+                if (!game) return '';
+
+                const isCompleted = currentUser.challengeProgress.completed.includes(gameId);
+                const isLocked = challengeConfig.sequential && index > 0 && 
+                                !currentUser.challengeProgress.completed.includes(challengeGames[index - 1]);
+                const canPlay = !isLocked;
+
+                return `
+                    <div class="game-card ${isLocked ? 'locked' : ''} ${isCompleted ? 'completed' : ''}" 
+                         onclick="${canPlay ? `playChallengeGame('${gameId}')` : ''}">
+                        <div class="game-number">${index + 1}</div>
+                        <div class="game-difficulty difficulty-${game.difficulty}">
+                            ${game.difficulty.toUpperCase()}
+                        </div>
+                        <div class="game-category">${game.category.toUpperCase()}</div>
+                        
+                        <h3>${game.title}</h3>
+                        <p>${game.description}</p>
+                        
+                        ${isCompleted ? `
+                            <div class="status-badge" style="background: #28a745; color: white; padding: 8px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">
+                                ✓ Completed
+                            </div>
+                        ` : isLocked ? `
+                            <div class="status-badge" style="background: #6c757d; color: white; padding: 8px 15px; border-radius: 20px; display: inline-block; margin-top: 10px;">
+                                🔒 Locked
+                            </div>
+                        ` : `
+                            <button class="play-btn" onclick="event.stopPropagation(); playChallengeGame('${gameId}')">
+                                ${index === completedCount ? '▶ Play Next' : '▶ Play Now'}
+                            </button>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function playChallengeGame(gameId) {
+            const game = GAME_LIBRARY.find(g => g.id === gameId);
+            if (!game) {
+                alert('Game not found!');
+                return;
+            }
+
+            // Check if game is enabled
+            if (!isGameEnabled(game.id, game.category)) {
+                alert('This game is currently disabled by an administrator.');
+                return;
+            }
+
+            returnTo = 'challenge';
+            currentGameId = gameId;
+            
+            // Show game play screen
+            document.getElementById('challengeScreen').classList.add('hidden');
+            document.getElementById('gamePlayScreen').classList.remove('hidden');
+            
+            // Show challenge complete button
+            document.getElementById('challengeCompleteSection').style.display = 'block';
+            
+            // Set title
+            document.getElementById('currentGameTitle').textContent = '🎮 ' + game.title;
+            
+            // Load game in iframe
+            const iframe = document.getElementById('gameFrame');
+            iframe.src = GAME_FILES_PATH + game.filename;
+
+            // Load leaderboard
+            loadLeaderboard(gameId);
+        }
+
+        function completeChallengeGame() {
+            if (!currentGameId) return;
+
+            const challengeConfig = JSON.parse(localStorage.getItem('challengeConfig') || '{}');
+            const challengeGames = challengeConfig.games || [];
+
+            // Add to completed if not already
+            if (!currentUser.challengeProgress.completed.includes(currentGameId)) {
+                currentUser.challengeProgress.completed.push(currentGameId);
+                
+                // Check if all complete
+                if (currentUser.challengeProgress.completed.length === challengeGames.length) {
+                    currentUser.challengeProgress.endTime = Date.now();
+                    
+                    const totalTime = currentUser.challengeProgress.endTime - currentUser.challengeProgress.startTime;
+                    
+                    if (challengeTimer) {
+                        clearInterval(challengeTimer);
+                        challengeTimer = null;
+                    }
+
+                    saveUserData();
+
+                    if (challengeConfig.timer) {
+                        alert(`🏆 CHALLENGE COMPLETE! 🏆\n\nTotal Time: ${formatChallengeTime(totalTime)}\n\nCongratulations!`);
+                    } else {
+                        alert(`🏆 CHALLENGE COMPLETE! 🏆\n\nYou've completed all ${challengeGames.length} games!\n\nCongratulations!`);
+                    }
+                    
+                    showChallengeMode();
+                } else {
+                    saveUserData();
+                    showChallengeMode();
+                }
+            } else {
+                showChallengeMode();
+            }
+        }
+
+        function startChallengeTimer() {
+            if (challengeTimer) {
+                clearInterval(challengeTimer);
+            }
+
+            challengeTimer = setInterval(() => {
+                if (!currentUser.challengeProgress.startTime) return;
+                
+                const elapsed = Date.now() - currentUser.challengeProgress.startTime;
+                document.getElementById('challengeTimer').textContent = formatChallengeTime(elapsed);
+            }, 100);
+        }
+
+        function formatChallengeTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const tenths = Math.floor((ms % 1000) / 100);
+            
+            return `${minutes}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+        }
+
+        // Game browser functions
+        function renderGameBrowser() {
+            const container = document.getElementById('browserGamesList');
+            const searchTerm = document.getElementById('gameSearch').value.toLowerCase();
+            
+            // Filter games based on admin settings
+            let filteredGames = GAME_LIBRARY.filter(game => {
+                // Check if game is enabled
+                if (!isGameEnabled(game.id, game.category)) {
+                    return false;
+                }
+                
+                const matchesCategory = currentCategory === 'all' || game.category === currentCategory;
+                const matchesSearch = !searchTerm || 
+                    game.title.toLowerCase().includes(searchTerm) ||
+                    game.description.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+
+            // Render games
+            if (filteredGames.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results" style="grid-column: 1 / -1;">
+                        <h3>No games available</h3>
+                        <p>${searchTerm || currentCategory !== 'all' ? 'Try adjusting your search or category filter' : 'No games are currently enabled. Contact an administrator.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredGames.map(game => {
+                const topScore = getTopScore(game.id);
+                return `
+                    <div class="game-card" onclick="playBrowserGame('${game.id}')">
+                        <div class="game-difficulty difficulty-${game.difficulty}">
+                            ${game.difficulty.toUpperCase()}
+                        </div>
+                        <div class="game-category">${game.category.toUpperCase()}</div>
+                        <h3>${game.title}</h3>
+                        <p>${game.description}</p>
+                        ${topScore ? `
+                            <p style="margin: 10px 0; color: #28a745; font-weight: bold; font-size: 0.9em;">
+                                🏆 Top: ${topScore.username} - ${formatScore(topScore.score)}
+                            </p>
+                        ` : ''}
+                        <button class="play-btn" onclick="event.stopPropagation(); playBrowserGame('${game.id}')">
+                            ▶ Play Now
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function isGameEnabled(gameId, category) {
+            const settings = JSON.parse(localStorage.getItem('gameSettings') || '{}');
+            
+            // Check category first
+            if (settings.categories && settings.categories[category] === false) {
+                return false;
+            }
+            
+            // Then check individual game
+            if (settings.games && settings.games[gameId] !== undefined) {
+                return settings.games[gameId];
+            }
+            
+            // Default: enabled
+            return true;
+        }
+
+        function getTopScore(gameId) {
+            const scores = JSON.parse(localStorage.getItem('gameScores') || '{}');
+            const gameScores = scores[gameId] || [];
+            
+            if (gameScores.length === 0) return null;
+            
+            const sorted = [...gameScores].sort((a, b) => b.score - a.score);
+            return sorted[0];
+        }
+
+        function formatScore(score) {
+            if (typeof score === 'number') {
+                return score.toLocaleString();
+            }
+            return score;
+        }
+
+        function setCategory(category) {
+            currentCategory = category;
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderGameBrowser();
+        }
+
+        function filterGames() {
+            renderGameBrowser();
+        }
+
+        function playBrowserGame(gameId) {
+            const game = GAME_LIBRARY.find(g => g.id === gameId);
+            if (!game) {
+                alert('Game not found!');
+                return;
+            }
+
+            // Check if game is enabled
+            if (!isGameEnabled(game.id, game.category)) {
+                alert('This game is currently disabled by an administrator.');
+                return;
+            }
+
+            returnTo = 'browser';
+            currentGameId = gameId;
+            
+            // Show game play screen
+            document.getElementById('browserScreen').classList.add('hidden');
+            document.getElementById('gamePlayScreen').classList.remove('hidden');
+            
+            // Hide challenge complete button
+            document.getElementById('challengeCompleteSection').style.display = 'none';
+            
+            // Set title
+            document.getElementById('currentGameTitle').textContent = '🎮 ' + game.title;
+            
+            // Load game in iframe
+            const iframe = document.getElementById('gameFrame');
+            iframe.src = GAME_FILES_PATH + game.filename;
+
+            // Load leaderboard
+            loadLeaderboard(gameId);
+        }
+
+        // Score tracking
+        function saveScore(gameId, score) {
+            if (!currentUser) return;
+
+            const scores = JSON.parse(localStorage.getItem('gameScores') || '{}');
+            if (!scores[gameId]) {
+                scores[gameId] = [];
+            }
+
+            scores[gameId].push({
+                username: currentUser.username,
+                score: score,
+                timestamp: new Date().toISOString()
+            });
+
+            localStorage.setItem('gameScores', JSON.stringify(scores));
+            
+            // Reload leaderboard
+            loadLeaderboard(gameId);
+        }
+
+        // Listen for score messages from games
+        window.addEventListener('message', function(event) {
+            // Security check - only accept messages from same origin
+            if (event.origin !== window.location.origin) return;
+
+            if (event.data && event.data.type === 'GAME_SCORE') {
+                const { gameId, score } = event.data;
+                if (gameId && score !== undefined) {
+                    saveScore(gameId, score);
+                    alert(`Score saved: ${formatScore(score)}! Check the leaderboard below.`);
+                }
+            }
+        });
+
+        // Leaderboard functions
+        function toggleLeaderboard() {
+            const content = document.getElementById('leaderboardContent');
+            const toggle = document.querySelector('.leaderboard-toggle');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                toggle.classList.remove('active');
+            } else {
+                content.classList.add('show');
+                toggle.classList.add('active');
+            }
+        }
+
+        function loadLeaderboard(gameId) {
+            const content = document.getElementById('leaderboardContent');
+            const scores = JSON.parse(localStorage.getItem('gameScores') || '{}');
+            const gameScores = scores[gameId] || [];
+
+            if (gameScores.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #666;">
+                        <p>No scores yet! Be the first to play and set a record!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by score (highest first)
+            const sortedScores = [...gameScores].sort((a, b) => b.score - a.score);
+            
+            // Get top 10
+            const topScores = sortedScores.slice(0, 10);
+
+            content.innerHTML = `
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Rank</th>
+                            <th>Player</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${topScores.map((score, index) => {
+                            const rankClass = index < 3 ? `rank-${index + 1}` : 'rank-other';
+                            const isCurrentUser = score.username === currentUser.username;
+                            return `
+                                <tr ${isCurrentUser ? 'style="background: #e7f3ff;"' : ''}>
+                                    <td>
+                                        <span class="rank-badge ${rankClass}">${index + 1}</span>
+                                    </td>
+                                    <td>
+                                        <strong>${score.username}</strong>
+                                        ${isCurrentUser ? '<span style="color: #667eea; margin-left: 5px;">👤 You</span>' : ''}
+                                    </td>
+                                    <td>
+                                        <span class="score-badge">${formatScore(score.score)}</span>
+                                    </td>
+                                    <td>${new Date(score.timestamp).toLocaleDateString()}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <p style="margin-top: 15px; text-align: center; color: #666; font-size: 0.9em;">
+                    Total plays: ${gameScores.length} | Your best: ${getUserBestScore(gameId, gameScores)}
+                </p>
+            `;
+        }
+
+        function getUserBestScore(gameId, gameScores) {
+            if (!currentUser) return 'N/A';
+            
+            const userScores = gameScores.filter(s => s.username === currentUser.username);
+            if (userScores.length === 0) return 'Not played yet';
+            
+            const best = Math.max(...userScores.map(s => s.score));
+            return formatScore(best);
+        }
+
+        // Console helpers
+        console.log('🎮 Enhanced Game Dashboard Loaded!');
+        console.log('📚 Available games:', GAME_LIBRARY.length);
+        console.log('💡 To add a new game, update the GAME_LIBRARY array in the code');
+        console.log('⚙️ Admin can control game visibility in admin-dashboard-enhanced.html');
+        console.log('🏆 Scores are automatically tracked when games report them');
+    
+    </script>
+</body>
+</html>
