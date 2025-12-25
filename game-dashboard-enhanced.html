@@ -605,12 +605,40 @@
     </div>
 
     <!-- Admin Link -->
-    <a href="admin-dashboard-enhanced.html" class="admin-link">
+    <a href="#" onclick="checkAdminAccess(); return false;" class="admin-link" id="adminLink">
         <span>⚙️</span>
         <span>Admin</span>
     </a>
 
     <script>
+        // ============ ADMIN CONFIGURATION ============
+        // List of usernames that have admin access
+        // Add usernames here to grant admin panel access
+        const ADMIN_USERS = ['admin']; // Add more usernames as needed: ['admin', 'john', 'sarah']
+        
+        // Admin credentials (must match admin-dashboard-enhanced.html)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = '12345bw';
+
+        // Check if current user has admin access
+        function checkAdminAccess() {
+            if (!currentUser) {
+                alert('⚠️ Please login first before accessing admin panel.');
+                return;
+            }
+
+            const username = currentUser.username;
+
+            // Check if user is in admin list
+            if (ADMIN_USERS.includes(username)) {
+                // User is authorized - redirect to admin panel
+                window.location.href = 'admin-dashboard-enhanced.html';
+            } else {
+                // User is not authorized
+                alert('🔒 Access Denied\n\nYou do not have administrator privileges.\n\nOnly authorized users can access the admin panel.');
+            }
+        }
+
         // ============ GAME LIBRARY ============
         // This is the master list of all available games
         // Add new games here to make them available in the browser
@@ -926,6 +954,14 @@
             document.getElementById('gamePlayScreen').classList.add('hidden');
             
             document.getElementById('displayName').textContent = currentUser.username;
+
+            // Show/hide admin link based on user role
+            const adminLink = document.getElementById('adminLink');
+            if (ADMIN_USERS.includes(currentUser.username)) {
+                adminLink.style.display = 'flex';
+            } else {
+                adminLink.style.display = 'none';
+            }
         }
 
         function showGameBrowser() {
