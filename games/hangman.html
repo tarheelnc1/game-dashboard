@@ -63,42 +63,164 @@
         }
 
         .stat-value {
-            color: #333;
-            font-size: 1.8em;
+            font-size: 2em;
             font-weight: bold;
+            color: #f5576c;
         }
 
-        .hangman-display {
-            margin-bottom: 30px;
-        }
-
-        .hangman-svg {
-            width: 300px;
+        .hangman-container {
+            margin: 30px auto;
+            position: relative;
             height: 300px;
-            margin: 0 auto;
+            width: 200px;
         }
 
-        .lives-display {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #dc3545;
+        .hangman-stand {
+            position: absolute;
+            background: #333;
+        }
+
+        .base {
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 10px;
+        }
+
+        .vertical-post {
+            bottom: 10px;
+            left: 40px;
+            width: 10px;
+            height: 250px;
+        }
+
+        .horizontal-beam {
+            top: 0;
+            left: 40px;
+            width: 120px;
+            height: 10px;
+        }
+
+        .rope {
+            top: 10px;
+            left: 155px;
+            width: 2px;
+            height: 40px;
+        }
+
+        .hangman-body-part {
+            position: absolute;
+            display: none;
+        }
+
+        #head {
+            top: 50px;
+            left: 130px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 5px solid #333;
+        }
+
+        #body {
+            top: 100px;
+            left: 152px;
+            width: 5px;
+            height: 80px;
+            background: #333;
+        }
+
+        #leftArm {
+            top: 120px;
+            left: 112px;
+            width: 40px;
+            height: 5px;
+            background: #333;
+            transform: rotate(-30deg);
+        }
+
+        #rightArm {
+            top: 120px;
+            left: 157px;
+            width: 40px;
+            height: 5px;
+            background: #333;
+            transform: rotate(30deg);
+        }
+
+        #leftLeg {
+            top: 175px;
+            left: 122px;
+            width: 30px;
+            height: 5px;
+            background: #333;
+            transform: rotate(-45deg);
+        }
+
+        #rightLeg {
+            top: 175px;
+            left: 157px;
+            width: 30px;
+            height: 5px;
+            background: #333;
+            transform: rotate(45deg);
+        }
+
+        .category-display {
+            font-size: 1.2em;
+            color: #666;
             margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .word-display {
             font-size: 3em;
             font-weight: bold;
-            letter-spacing: 0.3em;
+            margin: 30px 0;
+            letter-spacing: 10px;
             color: #333;
-            margin-bottom: 30px;
-            font-family: monospace;
+            min-height: 70px;
         }
 
-        .category {
-            font-size: 1.2em;
-            color: #667eea;
-            margin-bottom: 20px;
-            font-style: italic;
+        .lives-display {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .hint-section {
+            margin: 20px 0;
+        }
+
+        .hint-btn {
+            padding: 12px 25px;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        .hint-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .hint-display {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            color: #856404;
+            font-size: 1.1em;
+            min-height: 20px;
         }
 
         .alphabet {
@@ -106,139 +228,85 @@
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
-            margin-bottom: 30px;
+            margin: 30px 0;
         }
 
         .letter-btn {
-            width: 50px;
-            height: 50px;
-            font-size: 1.3em;
+            width: 45px;
+            height: 45px;
+            font-size: 1.2em;
             font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+            border: 2px solid #ddd;
+            background: white;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s;
         }
 
         .letter-btn:hover:not(:disabled) {
+            background: #f8f9fa;
+            border-color: #f5576c;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .letter-btn:disabled {
-            background: #ccc;
             cursor: not-allowed;
-            opacity: 0.5;
         }
 
         .letter-btn.correct {
-            background: linear-gradient(135deg, #6aaa64 0%, #5a9a54 100%);
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
         }
 
         .letter-btn.incorrect {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
         }
 
         .message {
             font-size: 1.5em;
             font-weight: bold;
-            margin-bottom: 20px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .win {
-            color: #28a745;
-        }
-
-        .lose {
-            color: #dc3545;
-        }
-
-        .hint-btn {
-            padding: 10px 25px;
-            font-size: 1em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #333;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .hint-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-        }
-
-        .hint-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .hint-display {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 20px;
-            font-style: italic;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
             min-height: 30px;
+        }
+
+        .message.win {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message.lose {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .play-again-btn {
             padding: 15px 40px;
             font-size: 1.2em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #f5576c;
             color: white;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
         }
 
         .play-again-btn:hover {
+            background: #e04960;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
-        }
-
-        @media (max-width: 600px) {
-            .game-container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .word-display {
-                font-size: 2em;
-                letter-spacing: 0.2em;
-            }
-
-            .letter-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.1em;
-            }
-
-            .hangman-svg {
-                width: 200px;
-                height: 200px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>🎯 Hangman</h1>
-        <p class="subtitle">Guess the word before you run out of lives!</p>
+        <p class="subtitle">Guess the word before the hangman is complete!</p>
 
         <div class="stats">
             <div class="stat">
@@ -255,46 +323,38 @@
             </div>
         </div>
 
-        <div class="lives-display" id="livesDisplay">❤️ Lives: 6</div>
+        <div class="category-display" id="category">Category: </div>
 
-        <div class="hangman-display">
-            <svg class="hangman-svg" viewBox="0 0 200 250">
-                <!-- Base -->
-                <line x1="10" y1="230" x2="150" y2="230" stroke="#333" stroke-width="4"/>
-                <!-- Pole -->
-                <line x1="50" y1="230" x2="50" y2="20" stroke="#333" stroke-width="4"/>
-                <!-- Top -->
-                <line x1="50" y1="20" x2="130" y2="20" stroke="#333" stroke-width="4"/>
-                <!-- Rope -->
-                <line x1="130" y1="20" x2="130" y2="50" stroke="#333" stroke-width="2"/>
-                
-                <!-- Head -->
-                <circle id="head" cx="130" cy="70" r="20" stroke="#dc3545" stroke-width="3" fill="none" style="display: none;"/>
-                <!-- Body -->
-                <line id="body" x1="130" y1="90" x2="130" y2="150" stroke="#dc3545" stroke-width="3" style="display: none;"/>
-                <!-- Left Arm -->
-                <line id="leftArm" x1="130" y1="110" x2="100" y2="130" stroke="#dc3545" stroke-width="3" style="display: none;"/>
-                <!-- Right Arm -->
-                <line id="rightArm" x1="130" y1="110" x2="160" y2="130" stroke="#dc3545" stroke-width="3" style="display: none;"/>
-                <!-- Left Leg -->
-                <line id="leftLeg" x1="130" y1="150" x2="110" y2="190" stroke="#dc3545" stroke-width="3" style="display: none;"/>
-                <!-- Right Leg -->
-                <line id="rightLeg" x1="130" y1="150" x2="150" y2="190" stroke="#dc3545" stroke-width="3" style="display: none;"/>
-            </svg>
+        <div class="hangman-container">
+            <!-- Stand parts -->
+            <div class="hangman-stand base"></div>
+            <div class="hangman-stand vertical-post"></div>
+            <div class="hangman-stand horizontal-beam"></div>
+            <div class="hangman-stand rope"></div>
+
+            <!-- Body parts (hidden by default) -->
+            <div class="hangman-body-part" id="head"></div>
+            <div class="hangman-body-part" id="body"></div>
+            <div class="hangman-body-part" id="leftArm"></div>
+            <div class="hangman-body-part" id="rightArm"></div>
+            <div class="hangman-body-part" id="leftLeg"></div>
+            <div class="hangman-body-part" id="rightLeg"></div>
         </div>
 
-        <div class="category" id="category"></div>
-        
-        <div class="hint-display" id="hintDisplay"></div>
-        <button class="hint-btn" id="hintBtn">💡 Get Hint (1 available)</button>
+        <div class="word-display" id="wordDisplay">_ _ _ _</div>
 
-        <div class="word-display" id="wordDisplay"></div>
+        <div class="lives-display" id="livesDisplay">Lives: ❤️❤️❤️❤️❤️❤️</div>
+
+        <div class="hint-section">
+            <button class="hint-btn" id="hintBtn">💡 Get Hint (1 available)</button>
+            <div class="hint-display" id="hintDisplay"></div>
+        </div>
 
         <div class="alphabet" id="alphabet"></div>
 
         <div class="message" id="message"></div>
 
-        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+        <button class="play-again-btn" id="playAgainBtn" style="display: none;">Play Again</button>
     </div>
 
     <script>
@@ -446,6 +506,14 @@
                 wins++;
                 streak++;
                 updateStats();
+                
+                // ════════════════════════════════════════════════════════
+                // Calculate and report score when player WINS
+                // ════════════════════════════════════════════════════════
+                const score = calculateScore(true);
+                reportScore(score);
+                // ════════════════════════════════════════════════════════
+                
                 document.getElementById('message').innerHTML = '🎉 You Win!';
                 document.getElementById('message').className = 'message win';
                 document.getElementById('playAgainBtn').style.display = 'block';
@@ -454,6 +522,14 @@
                 played++;
                 streak = 0;
                 updateStats();
+                
+                // ════════════════════════════════════════════════════════
+                // Calculate and report score when player LOSES
+                // ════════════════════════════════════════════════════════
+                const score = calculateScore(false);
+                reportScore(score);
+                // ════════════════════════════════════════════════════════
+                
                 document.getElementById('message').innerHTML = `💀 Game Over! The word was: ${currentWord}`;
                 document.getElementById('message').className = 'message lose';
                 document.getElementById('playAgainBtn').style.display = 'block';
@@ -466,6 +542,52 @@
             document.getElementById('wins').textContent = wins;
             document.getElementById('streak').textContent = streak;
         }
+
+        // ════════════════════════════════════════════════════════
+        // NEW: Calculate score based on game performance
+        // ════════════════════════════════════════════════════════
+        function calculateScore(isWin) {
+            if (!isWin) {
+                return 0; // No points for losing
+            }
+
+            // Base score for winning
+            let score = 100;
+
+            // Bonus for fewer wrong guesses (10 points per life remaining)
+            const livesRemaining = maxWrong - wrongGuesses;
+            score += livesRemaining * 10;
+
+            // Penalty for using hint
+            if (hintUsed) {
+                score -= 20;
+            }
+
+            // Bonus for winning streak
+            score += streak * 5;
+
+            return Math.max(score, 10); // Minimum 10 points
+        }
+
+        // ════════════════════════════════════════════════════════
+        // NEW: Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            // Check if game is running inside the dashboard (in an iframe)
+            if (window.parent && window.parent !== window) {
+                // Send score message to the dashboard
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'hangman',  // ← Must match the 'id' in GAME_LIBRARY
+                    score: finalScore
+                }, '*');
+                
+                console.log('✅ Score reported to dashboard:', finalScore);
+            } else {
+                console.log('⚠️ Game not in dashboard - score not reported');
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         // Keyboard support
         document.addEventListener('keydown', (e) => {
