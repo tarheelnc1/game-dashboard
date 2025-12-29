@@ -923,9 +923,24 @@
             if (!users[username]) {
                 users[username] = {
                     username: username,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    challengeProgress: {
+                        completed: [],
+                        startTime: null,
+                        endTime: null
+                    }
                 };
                 localStorage.setItem('users', JSON.stringify(users));
+            } else {
+                // Ensure existing users have challengeProgress
+                if (!users[username].challengeProgress) {
+                    users[username].challengeProgress = {
+                        completed: [],
+                        startTime: null,
+                        endTime: null
+                    };
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
             }
             
             currentUser = users[username];
