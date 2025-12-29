@@ -616,7 +616,61 @@
 
             <!-- User Management Tab -->
             <div id="usersTab" class="tab-content">
-                <h2>User Management</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">User Management</h2>
+                    <button class="btn btn-success" onclick="showAddUserForm()">➕ Add User</button>
+                </div>
+
+                <!-- Add User Form (Hidden by default) -->
+                <div id="addUserForm" style="display: none; background: #e7f3ff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Add New User</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username:</label>
+                            <input type="text" id="newUsername" placeholder="Enter username" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="newUserIsAdmin">
+                            <label for="newUserIsAdmin" style="font-weight: 600;">Grant admin access (add to ADMIN_USERS list)</label>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-success" onclick="addNewUser()">✓ Create User</button>
+                            <button class="btn btn-secondary" onclick="hideAddUserForm()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit User Form (Hidden by default) -->
+                <div id="editUserForm" style="display: none; background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #f39c12; margin-bottom: 15px;">Edit User</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username:</label>
+                            <input type="text" id="editUsername" disabled style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; background: #f8f9fa;">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 5px;">Username cannot be changed</p>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Created:</label>
+                            <input type="text" id="editCreatedAt" disabled style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; background: #f8f9fa;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Challenge Progress:</label>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                                <p><strong>Games Completed:</strong> <span id="editChallengeCompleted">0</span></p>
+                                <button class="btn btn-secondary" style="margin-top: 10px; padding: 6px 12px; font-size: 0.9em;" onclick="resetChallengeProgress()">Reset Challenge Progress</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #e7f3ff; border-radius: 8px;">
+                            <input type="checkbox" id="editUserIsAdmin">
+                            <label for="editUserIsAdmin" style="font-weight: 600;">Is Admin (requires editing ADMIN_USERS in code)</label>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-success" onclick="saveUserEdit()">✓ Save Changes</button>
+                            <button class="btn btn-secondary" onclick="hideEditUserForm()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="usersContent">
                     <!-- Users will be loaded here -->
                 </div>
@@ -796,6 +850,17 @@
             // Show selected tab
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
+
+            // Refresh content when switching tabs
+            if (tabName === 'games') {
+                renderGameManagement();
+            } else if (tabName === 'leaderboards') {
+                renderLeaderboards();
+            } else if (tabName === 'users') {
+                renderUsers();
+            } else if (tabName === 'challenge') {
+                renderChallengeGames();
+            }
         }
 
         // Stats
@@ -1069,37 +1134,92 @@
 
         // User Management
         function renderUsers() {
+            console.log('=== renderUsers() called ===');
             const container = document.getElementById('usersContent');
+            
+            if (!container) {
+                console.error('❌ ERROR: usersContent container not found!');
+                return;
+            }
+            console.log('✅ Container found');
+
             const users = JSON.parse(localStorage.getItem('users') || '{}');
+            console.log('📊 Users from localStorage:', users);
+            console.log('📊 Number of users:', Object.keys(users).length);
 
             if (Object.keys(users).length === 0) {
-                container.innerHTML = '<div class="no-scores">No users registered yet</div>';
+                console.log('⚠️ No users found - displaying empty message');
+                container.innerHTML = `
+                    <div class="no-scores" style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">No Users Yet</h3>
+                        <p style="margin-bottom: 5px;">Users are created when they first login to the game dashboard</p>
+                        <p style="font-size: 0.9em; color: #666;">or you can add them manually using the button above.</p>
+                        <button class="btn btn-success" style="margin-top: 20px;" onclick="showAddUserForm()">➕ Add Your First User</button>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = `
-                <table class="leaderboard-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.entries(users).map(([username, user]) => `
+            // Get admin users list from game dashboard
+            const adminUsers = ['admin']; // This should match ADMIN_USERS in game-dashboard-enhanced.html
+            
+            console.log('🔨 Building table HTML...');
+            
+            try {
+                const tableHTML = `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>Total Users:</strong> ${Object.keys(users).length}
+                    </div>
+                    <table class="leaderboard-table">
+                        <thead>
                             <tr>
-                                <td><strong>${username}</strong></td>
-                                <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</td>
-                                <td>
-                                    <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.9em;" 
-                                            onclick="deleteUser('${username}')">Delete</button>
-                                </td>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Challenge Progress</th>
+                                <th>Actions</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                        </thead>
+                        <tbody>
+                            ${Object.entries(users).map(([username, user]) => {
+                                const isAdmin = adminUsers.includes(username);
+                                const challengeCompleted = user.challengeProgress?.completed?.length || 0;
+                                return `
+                                <tr>
+                                    <td>
+                                        <strong>${username}</strong>
+                                        ${isAdmin ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin-left: 5px;">ADMIN</span>' : ''}
+                                    </td>
+                                    <td>${isAdmin ? 'Administrator' : 'User'}</td>
+                                    <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</td>
+                                    <td>${challengeCompleted} games completed</td>
+                                    <td>
+                                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.9em; margin-right: 5px;" 
+                                                onclick="editUser('${username}')">Edit</button>
+                                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.9em;" 
+                                                onclick="deleteUser('${username}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                console.log('✅ HTML built, setting innerHTML...');
+                container.innerHTML = tableHTML;
+                console.log('✅✅✅ Users table rendered successfully!');
+            } catch (error) {
+                console.error('❌ ERROR rendering users table:', error);
+                container.innerHTML = `
+                    <div style="background: #f8d7da; padding: 20px; border-radius: 8px; color: #721c24;">
+                        <strong>⚠️ Error displaying users</strong>
+                        <p style="margin-top: 10px;">There was an error rendering the user table.</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Error: ${error.message}</p>
+                        <button class="btn btn-primary" style="margin-top: 10px;" onclick="renderUsers()">🔄 Try Again</button>
+                    </div>
+                `;
+            }
         }
 
         function deleteUser(username) {
@@ -1119,6 +1239,147 @@
             updateStats();
             renderUsers();
             renderLeaderboards();
+        }
+
+        function showAddUserForm() {
+            document.getElementById('addUserForm').style.display = 'block';
+            document.getElementById('newUsername').focus();
+        }
+
+        function hideAddUserForm() {
+            document.getElementById('addUserForm').style.display = 'none';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newUserIsAdmin').checked = false;
+        }
+
+        function addNewUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const isAdmin = document.getElementById('newUserIsAdmin').checked;
+
+            // Validate username
+            if (!username) {
+                alert('⚠️ Please enter a username');
+                return;
+            }
+
+            if (username.length < 3) {
+                alert('⚠️ Username must be at least 3 characters long');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                alert('⚠️ Username can only contain letters, numbers, hyphens, and underscores');
+                return;
+            }
+
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            if (users[username]) {
+                alert('⚠️ User "' + username + '" already exists');
+                return;
+            }
+
+            // Create new user
+            users[username] = {
+                username: username,
+                createdAt: new Date().toISOString(),
+                challengeProgress: {
+                    completed: [],
+                    startTime: null,
+                    endTime: null
+                }
+            };
+
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Show success message
+            let message = '✅ User "' + username + '" created successfully!';
+            
+            if (isAdmin) {
+                message += '\n\n⚠️ IMPORTANT: To grant admin access, you must also add "' + username + '" to the ADMIN_USERS array in game-dashboard-enhanced.html\n\nFind this line:\nconst ADMIN_USERS = [\'admin\'];\n\nChange it to:\nconst ADMIN_USERS = [\'admin\', \'' + username + '\'];';
+            }
+
+            alert(message);
+
+            // Reset form and refresh
+            hideAddUserForm();
+            updateStats();
+            renderUsers();
+        }
+
+        let currentEditingUser = null;
+
+        function editUser(username) {
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const user = users[username];
+            
+            if (!user) {
+                alert('User not found');
+                return;
+            }
+
+            currentEditingUser = username;
+
+            // Hide add form if open
+            hideAddUserForm();
+
+            // Fill in edit form
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editCreatedAt').value = user.createdAt ? new Date(user.createdAt).toLocaleString() : 'Unknown';
+            document.getElementById('editChallengeCompleted').textContent = user.challengeProgress?.completed?.length || 0;
+            
+            // Check if user is admin
+            const adminUsers = ['admin']; // Should match ADMIN_USERS
+            document.getElementById('editUserIsAdmin').checked = adminUsers.includes(username);
+
+            // Show edit form
+            document.getElementById('editUserForm').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function hideEditUserForm() {
+            document.getElementById('editUserForm').style.display = 'none';
+            currentEditingUser = null;
+        }
+
+        function saveUserEdit() {
+            if (!currentEditingUser) return;
+
+            const isAdmin = document.getElementById('editUserIsAdmin').checked;
+            
+            // Show message about admin access
+            if (isAdmin) {
+                alert(`✅ Changes noted!\n\n⚠️ REMINDER: To grant admin access, you must add "${currentEditingUser}" to the ADMIN_USERS array in game-dashboard-enhanced.html\n\nFind:\nconst ADMIN_USERS = ['admin'];\n\nChange to:\nconst ADMIN_USERS = ['admin', '${currentEditingUser}'];`);
+            } else {
+                alert('✅ Changes saved!\n\nNote: If this user was previously an admin, remember to remove them from the ADMIN_USERS array in game-dashboard-enhanced.html');
+            }
+
+            hideEditUserForm();
+            renderUsers();
+        }
+
+        function resetChallengeProgress() {
+            if (!currentEditingUser) return;
+
+            if (!confirm(`Reset challenge progress for "${currentEditingUser}"?\n\nThis will:\n• Clear all completed games\n• Reset start/end times\n• Allow them to restart the challenge\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            if (users[currentEditingUser]) {
+                users[currentEditingUser].challengeProgress = {
+                    completed: [],
+                    startTime: null,
+                    endTime: null
+                };
+                localStorage.setItem('users', JSON.stringify(users));
+
+                alert(`✅ Challenge progress reset for "${currentEditingUser}"`);
+
+                // Update the display
+                document.getElementById('editChallengeCompleted').textContent = '0';
+                renderUsers();
+            }
         }
 
         // Navigation
