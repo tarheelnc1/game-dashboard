@@ -457,8 +457,47 @@
                 document.getElementById('message').className = 'message win';
                 document.querySelector('.reset-btn').textContent = '😎';
                 clearInterval(timerInterval);
+                
+                // ════════════════════════════════════════════════════════
+                // Report score when winning
+                // ════════════════════════════════════════════════════════
+                const score = calculateScore();
+                reportScore(score);
+                // ════════════════════════════════════════════════════════
             }
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score based on difficulty and time
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Difficulty multiplier
+            let difficultyScore = 0;
+            if (currentDifficulty === 'beginner') difficultyScore = 100;
+            else if (currentDifficulty === 'intermediate') difficultyScore = 200;
+            else if (currentDifficulty === 'expert') difficultyScore = 300;
+            
+            // Time bonus (faster = more points)
+            // Max 100 bonus, decreases with time
+            const timeBonus = Math.max(0, 100 - timer);
+            
+            return difficultyScore + timeBonus;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'minesweeper',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function startTimer() {
             timerInterval = setInterval(() => {

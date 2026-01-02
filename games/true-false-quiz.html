@@ -176,7 +176,37 @@
             
             document.getElementById('rating').textContent = rating;
             document.getElementById('result').style.display = 'block';
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when quiz completes
+            // ════════════════════════════════════════════════════════
+            const finalScore = calculateScore();
+            reportScore(finalScore);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - each correct answer × 10 points
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // 10 questions × 10 points = max 100 points
+            return score * 10;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'true-false-quiz',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         init();
     </script>

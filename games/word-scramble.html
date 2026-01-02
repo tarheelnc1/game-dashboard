@@ -281,7 +281,37 @@
             
             document.getElementById('score').textContent = score;
             document.getElementById('result').style.display = 'block';
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when all words complete
+            // ════════════════════════════════════════════════════════
+            const finalScore = calculateScore();
+            reportScore(finalScore);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - each correct word × 20 points
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // 5 words × 20 points = max 100 points
+            return score * 20;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'word-scramble',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         startGame();
     </script>

@@ -357,6 +357,10 @@
                         lossesEl.textContent = losses;
                         streakEl.textContent = streak;
 
+                        // Report score
+                        const score = calculateScore();
+                        reportScore(score);
+
                         playAgainBtn.style.display = 'block';
                     }, 500);
                 }, 500);
@@ -373,6 +377,21 @@
             document.body.classList.remove('lights-on');
             resultMessage.textContent = '';
             playAgainBtn.style.display = 'none';
+        }
+
+        function calculateScore() {
+            return (wins * 10) + (streak * 5);
+        }
+
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'light-switch',
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
         }
 
         onBtn.addEventListener('click', () => makeChoice('on'));

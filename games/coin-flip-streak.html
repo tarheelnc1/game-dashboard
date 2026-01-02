@@ -197,11 +197,13 @@
     <script>
         let streak = 0;
         let isFlipping = false;
+        let totalAttempts = 0;
 
         function predict(choice) {
             if (isFlipping) return;
             
             isFlipping = true;
+            totalAttempts++;
             document.getElementById('headsBtn').disabled = true;
             document.getElementById('tailsBtn').disabled = true;
 
@@ -224,7 +226,7 @@
 
                 if (correct) {
                     streak++;
-                    resultEl.textContent = '✓ Correct!';
+                    resultEl.textContent = '✔ Correct!';
                     resultEl.className = 'result success';
                     addToHistory(true);
                     
@@ -254,14 +256,52 @@
             const history = document.getElementById('history');
             const item = document.createElement('div');
             item.className = `history-item ${correct ? 'correct' : 'incorrect'}`;
-            item.textContent = correct ? '✓' : '✗';
+            item.textContent = correct ? '✔' : '✗';
             history.appendChild(item);
         }
 
         function win() {
             document.querySelector('.buttons').style.display = 'none';
             document.getElementById('winMessage').style.display = 'block';
+            
+            // ════════════════════════════════════════════════════════
+            // Calculate and report score when winning
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - bonus for fewer attempts
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Base score for winning
+            let score = 100;
+            
+            // Bonus for completing in fewer attempts
+            // Perfect = 5 attempts = +50 bonus
+            // More attempts = less bonus
+            const bonus = Math.max(0, 50 - (totalAttempts - 5) * 5);
+            score += bonus;
+            
+            return score;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'coin-flip-streak',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
     </script>
 </body>
 </html>

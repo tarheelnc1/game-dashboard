@@ -311,6 +311,13 @@
                     lossesEl.textContent = losses;
                     streakEl.textContent = streak;
 
+                    // ════════════════════════════════════════════════════════
+                    // Report score after each round
+                    // ════════════════════════════════════════════════════════
+                    const score = calculateScore();
+                    reportScore(score);
+                    // ════════════════════════════════════════════════════════
+
                     playAgainBtn.style.display = 'block';
                 }, 300);
             }, 600);
@@ -324,6 +331,31 @@
             resultMessage.textContent = '';
             playAgainBtn.style.display = 'none';
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score based on performance
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Wins × 10 + Streak × 5
+            let score = wins * 10;
+            score += streak * 5;
+            return score;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'higher-or-lower',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         higherBtn.addEventListener('click', () => makeChoice('higher'));
         lowerBtn.addEventListener('click', () => makeChoice('lower'));

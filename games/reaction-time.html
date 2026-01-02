@@ -248,7 +248,40 @@
             document.getElementById('rating').textContent = rating;
 
             document.getElementById('results').classList.add('show');
+            
+            // ════════════════════════════════════════════════════════
+            // Report score based on average reaction time
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore(average);
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - faster reaction = higher score
+        // ════════════════════════════════════════════════════════
+        function calculateScore(averageMs) {
+            // Formula: Max(10, 300 - average_ms)
+            // Under 200ms = 100+ points
+            // 250ms = 50 points
+            // 300ms+ = 10 points (minimum)
+            return Math.max(10, Math.round(300 - averageMs));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'reaction-time',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
     </script>
 </body>
 </html>

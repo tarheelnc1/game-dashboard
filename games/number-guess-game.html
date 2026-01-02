@@ -325,10 +325,38 @@
                 </button>
             `;
 
-            setTimeout(() => {
-                alert(`🎉 Congratulations! You found the number!\n\nAttempts: ${attempts}\n\nIn the dashboard, this would automatically advance to the next game.`);
-            }, 500);
+            // ════════════════════════════════════════════════════════
+            // Report score when number is guessed
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - fewer attempts = higher score
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Perfect score: 1 attempt = 100 points
+            // Score decreases with more attempts
+            // Formula: Max(10, 100 - (attempts - 1) × 5)
+            return Math.max(10, 100 - ((attempts - 1) * 5));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'number-guess-game',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function resetGame() {
             secretNumber = Math.floor(Math.random() * 100) + 1;

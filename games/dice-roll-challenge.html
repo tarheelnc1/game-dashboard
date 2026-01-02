@@ -188,7 +188,47 @@
             document.querySelector('.dice-container').style.display = 'none';
             document.getElementById('rollBtn').style.display = 'none';
             document.getElementById('winMessage').style.display = 'block';
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when winning
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - bonus for fewer rolls
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Base score for winning
+            let score = 100;
+            
+            // Bonus for completing quickly
+            // Fewer rolls = higher bonus
+            // Perfect (1 roll) = 100 bonus
+            // 10 rolls = 10 bonus
+            // 20+ rolls = 0 bonus
+            const bonus = Math.max(0, 100 - (rolls * 5));
+            score += bonus;
+            
+            return score;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'dice-roll-challenge',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
     </script>
 </body>
 </html>

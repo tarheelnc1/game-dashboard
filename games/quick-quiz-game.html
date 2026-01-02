@@ -328,14 +328,7 @@
                         <div>Your Score:</div>
                         <div class="final-score-value">${score}/5</div>
                     </div>
-                    <p style="text-align: center; color: #666; margin: 20px 0;">
-                        In the dashboard, you would automatically advance to the next game!
-                    </p>
                 `;
-                
-                setTimeout(() => {
-                    alert(`🎉 Great job! You scored ${score}/5!\n\nIn the dashboard, this would automatically advance to the next game.`);
-                }, 500);
             } else {
                 resultContainer.innerHTML = `
                     <div class="result-message failure">
@@ -352,7 +345,38 @@
             }
 
             document.getElementById('questionContainer').innerHTML = '';
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when quiz is complete
+            // ════════════════════════════════════════════════════════
+            const finalScore = calculateScore();
+            reportScore(finalScore);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - correct answers × 20 points
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Each correct answer = 20 points
+            // Perfect score = 100 points (5/5)
+            return score * 20;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'quick-quiz-game',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function restartQuiz() {
             currentQuestionIndex = 0;

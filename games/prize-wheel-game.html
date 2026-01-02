@@ -212,6 +212,21 @@
         <h1>🎡 Prize Wheel</h1>
         <p class="description">Select which prize you think the wheel will land on!</p>
 
+        <div style="display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+            <div style="text-align: center;">
+                <div style="color: #666; font-size: 0.9em;">Wins</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #2ecc71;" id="wins">0</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: #666; font-size: 0.9em;">Losses</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c;" id="losses">0</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: #666; font-size: 0.9em;">Streak</div>
+                <div style="font-size: 1.5em; font-weight: bold; color: #3498db;" id="streak">0</div>
+            </div>
+        </div>
+
         <div class="prize-selection" id="prizeSelection">
             <button class="prize-btn" onclick="selectPrize('Prize 1')">🎁 Prize 1</button>
             <button class="prize-btn" onclick="selectPrize('Prize 2')">🎁 Prize 2</button>
@@ -240,6 +255,9 @@
     <script>
         let selectedPrize = null;
         let isSpinning = false;
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
 
         function selectPrize(prize) {
             if (isSpinning) return;
@@ -287,22 +305,64 @@
             const tryAgainContainer = document.getElementById('tryAgainContainer');
             
             if (winningPrize === selectedPrize) {
+                wins++;
+                streak++;
                 resultMessage.textContent = `🎉 YOU WIN! The wheel landed on ${winningPrize}!`;
                 resultMessage.className = 'result-message success';
                 
-                // Show success and allow to continue (in dashboard, this would auto-advance)
+                // Update stats display
+                document.getElementById('wins').textContent = wins;
+                document.getElementById('streak').textContent = streak;
+                
+                // Report score
+                const score = calculateScore();
+                reportScore(score);
+                
+                // Auto-reset for next spin
                 setTimeout(() => {
-                    alert('🎉 Congratulations! You won!\n\nIn the dashboard, this would automatically advance to the next game.');
                     resetGame();
-                }, 1000);
+                }, 2000);
             } else {
+                losses++;
+                streak = 0;
                 resultMessage.textContent = `❌ Sorry! The wheel landed on ${winningPrize}. You picked ${selectedPrize}.`;
                 resultMessage.className = 'result-message failure';
+                
+                // Update stats display
+                document.getElementById('losses').textContent = losses;
+                document.getElementById('streak').textContent = streak;
+                
+                // Report score
+                const score = calculateScore();
+                reportScore(score);
+                
                 tryAgainContainer.style.display = 'block';
             }
             
             isSpinning = false;
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - wins × 10 + streak × 5
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            return (wins * 10) + (streak * 5);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'prize-wheel-game',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function resetGame() {
             selectedPrize = null;

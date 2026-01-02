@@ -214,7 +214,7 @@
                 disableBoxes(true);
                 level++;
                 document.getElementById('level').textContent = level;
-                document.getElementById('instructions').textContent = '✓ Correct! Get ready...';
+                document.getElementById('instructions').textContent = '✔ Correct! Get ready...';
                 
                 setTimeout(() => {
                     nextRound();
@@ -233,6 +233,13 @@
                 </div>
             `;
             document.getElementById('startBtn').disabled = false;
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when game ends
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
 
         function disableBoxes(disabled) {
@@ -245,6 +252,30 @@
                 }
             }
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score based on level reached
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Score = level reached * 10
+            // Level 1 = 10, Level 5 = 50, Level 10 = 100, etc.
+            return level * 10;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'color-memory',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         disableBoxes(true);
     </script>

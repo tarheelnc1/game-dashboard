@@ -265,6 +265,13 @@
                         document.getElementById('instruction').style.display = 'none';
                         document.getElementById('result').style.display = 'none';
                         document.getElementById('winMessage').style.display = 'block';
+                        
+                        // ════════════════════════════════════════════════════════
+                        // Report score when all 5 levels complete
+                        // ════════════════════════════════════════════════════════
+                        const score = calculateScore();
+                        reportScore(score);
+                        // ════════════════════════════════════════════════════════
                     }, 1500);
                 } else {
                     document.getElementById('level').textContent = currentLevel;
@@ -288,6 +295,29 @@
             generatePattern();
             showPattern();
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - 20 points per level completed
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Completed all 5 levels = 100 points
+            return 100;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'pattern-match',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         // Start game
         startLevel();

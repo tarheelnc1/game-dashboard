@@ -346,8 +346,37 @@
                 streakEl.textContent = streak;
 
                 playAgainBtn.style.display = 'block';
+                
+                // ════════════════════════════════════════════════════════
+                // Report score after showing result
+                // ════════════════════════════════════════════════════════
+                const score = calculateScore();
+                reportScore(score);
+                // ════════════════════════════════════════════════════════
             }, baseDuration + 500);
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - wins × 10 + streak × 5
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            return (wins * 10) + (streak * 5);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'race-finish',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function resetGame() {
             gameActive = true;

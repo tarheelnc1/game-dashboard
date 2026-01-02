@@ -205,7 +205,7 @@
                         bestStreak = streak;
                         document.getElementById('bestStreak').textContent = bestStreak;
                     }
-                    resultEl.textContent = '✓ Correct!';
+                    resultEl.textContent = '✔ Correct!';
                     resultEl.className = 'result correct';
                 } else {
                     streak = 0;
@@ -215,6 +215,13 @@
 
                 document.getElementById('score').textContent = score;
                 document.getElementById('streak').textContent = streak;
+
+                // ════════════════════════════════════════════════════════
+                // Report score after each guess
+                // ════════════════════════════════════════════════════════
+                const finalScore = calculateScore();
+                reportScore(finalScore);
+                // ════════════════════════════════════════════════════════
 
                 setTimeout(() => {
                     resultEl.textContent = '';
@@ -233,6 +240,29 @@
             document.getElementById('result').textContent = '';
             init();
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Score × 10 + Best Streak × 20
+            return (score * 10) + (bestStreak * 20);
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'high-low-card',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function init() {
             currentCard = getRandomCard();

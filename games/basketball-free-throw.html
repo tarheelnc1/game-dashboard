@@ -389,6 +389,13 @@
                     lossesEl.textContent = losses;
                     streakEl.textContent = streak;
 
+                    // ════════════════════════════════════════════════════════
+                    // Report score after each round
+                    // ════════════════════════════════════════════════════════
+                    const score = calculateScore();
+                    reportScore(score);
+                    // ════════════════════════════════════════════════════════
+
                     playAgainBtn.style.display = 'block';
                 }, 800);
             }, 1500);
@@ -402,6 +409,34 @@
             resultMessage.textContent = '';
             playAgainBtn.style.display = 'none';
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score based on performance
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Base score: wins * 10
+            let score = wins * 10;
+            
+            // Streak bonus: current streak * 5
+            score += streak * 5;
+            
+            return score;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'basketball-free-throw',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         leftBtn.addEventListener('click', () => makeChoice('left'));
         rightBtn.addEventListener('click', () => makeChoice('right'));

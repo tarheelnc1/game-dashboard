@@ -269,7 +269,45 @@
             document.getElementById('finalCorrect').textContent = correctAnswers;
             document.getElementById('finalTime').textContent = totalTime;
             document.getElementById('avgTime').textContent = avgTime;
+            
+            // ════════════════════════════════════════════════════════
+            // Report score when finishing all 10 questions
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore(correctAnswers, parseFloat(totalTime));
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - correct answers + time bonus
+        // ════════════════════════════════════════════════════════
+        function calculateScore(correct, time) {
+            // Base: correct answers × 10
+            let score = correct * 10;
+            
+            // Time bonus: faster = more points
+            // Under 30s = +50, under 60s = +25, under 90s = +10
+            if (time < 30) score += 50;
+            else if (time < 60) score += 25;
+            else if (time < 90) score += 10;
+            
+            return score;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'math-sprint',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
     </script>
 </body>
 </html>

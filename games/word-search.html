@@ -522,8 +522,57 @@
                 document.getElementById('message').innerHTML = '🎉 Congratulations! You found all the words!';
                 document.getElementById('message').className = 'message win';
                 document.getElementById('playAgainBtn').style.display = 'block';
+                
+                // ════════════════════════════════════════════════════════
+                // Report score when all words found
+                // ════════════════════════════════════════════════════════
+                const score = calculateScore();
+                reportScore(score);
+                // ════════════════════════════════════════════════════════
             }
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - base points + time bonus
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Base points by difficulty: Easy=30, Medium=50, Hard=70
+            const basePoints = { easy: 30, medium: 50, hard: 70 };
+            const base = basePoints[difficulty];
+            
+            // Time bonus: faster = more points (max 30 points)
+            // Easy: < 60s = +30, < 120s = +20, < 180s = +10
+            // Medium: < 90s = +30, < 150s = +20, < 210s = +10
+            // Hard: < 120s = +30, < 180s = +20, < 240s = +10
+            const timeLimits = {
+                easy: [60, 120, 180],
+                medium: [90, 150, 210],
+                hard: [120, 180, 240]
+            };
+            
+            const limits = timeLimits[difficulty];
+            let timeBonus = 0;
+            if (seconds < limits[0]) timeBonus = 30;
+            else if (seconds < limits[1]) timeBonus = 20;
+            else if (seconds < limits[2]) timeBonus = 10;
+            
+            return base + timeBonus;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'word-search',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function updateTimer() {
             seconds++;

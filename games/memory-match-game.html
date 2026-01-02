@@ -285,10 +285,38 @@
             resultMessage.textContent = `🎉 You found all pairs in ${moves} moves!`;
             resultMessage.className = 'result-message success';
             
-            setTimeout(() => {
-                alert(`🎉 Congratulations! You completed Memory Match!\n\nMoves: ${moves}\n\nIn the dashboard, this would automatically advance to the next game.`);
-            }, 500);
+            // ════════════════════════════════════════════════════════
+            // Report score when completing all pairs
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - fewer moves = higher score
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Base 100 - (moves × 5)
+            // Fewer moves = higher score
+            // Minimum 10 points
+            return Math.max(10, 100 - (moves * 5));
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'memory-match-game',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
 
         function resetGame() {
             matchedPairs = 0;

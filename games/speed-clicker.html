@@ -138,7 +138,37 @@
             
             document.getElementById('rating').textContent = rating;
             document.getElementById('result').style.display = 'block';
+            
+            // ════════════════════════════════════════════════════════
+            // Report score based on click count
+            // ════════════════════════════════════════════════════════
+            const score = calculateScore();
+            reportScore(score);
+            // ════════════════════════════════════════════════════════
         }
+
+        // ════════════════════════════════════════════════════════
+        // Calculate score - click count is the score
+        // ════════════════════════════════════════════════════════
+        function calculateScore() {
+            // Direct: number of clicks = score
+            return clicks;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // Report score to dashboard
+        // ════════════════════════════════════════════════════════
+        function reportScore(finalScore) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_SCORE',
+                    gameId: 'speed-clicker',  // Must match GAME_LIBRARY id
+                    score: finalScore
+                }, '*');
+                console.log('✅ Score reported:', finalScore);
+            }
+        }
+        // ════════════════════════════════════════════════════════
     </script>
 </body>
 </html>
